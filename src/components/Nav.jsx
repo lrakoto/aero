@@ -2,10 +2,10 @@ import { motion } from 'framer-motion'
 import { useUIStore } from '../store/uiStore'
 
 const MODES = [
-  { id: 'default', label: 'SYS' },
-  { id: 'speed',   label: 'SPD' },
-  { id: 'stealth', label: 'STL' },
-  { id: 'precision', label: 'PRC' },
+  { id: 'default',   label: 'SYS' },
+  { id: 'speed',     label: 'SPD' },
+  { id: 'stealth',   label: 'STL' },
+  { id: 'precision', label: 'NVG' },
 ]
 
 export default function Nav() {
