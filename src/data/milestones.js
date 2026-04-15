@@ -1,3 +1,46 @@
+export const ERA_DATA = {
+  Origins: {
+    index: 0,
+    dateRange: '1912 – 1939',
+    aircraft: 'LOCKHEED VEGA',
+    tagline: 'Built in a circus tent. Flew into history.',
+    description:
+      'The Loughead brothers begin with nothing but ambition and a rented workshop. Within two decades, their aircraft carry the first woman across the Atlantic solo and set speed records on every continent.',
+  },
+  Wartime: {
+    index: 1,
+    dateRange: '1940 – 1945',
+    aircraft: 'P-38 LIGHTNING',
+    tagline: 'War compresses decades of innovation into years.',
+    description:
+      'The pressure of global conflict accelerates everything. Kelly Johnson establishes Skunk Works — a small, empowered team that will define rapid aerospace prototyping for the next century.',
+  },
+  'Cold War': {
+    index: 2,
+    dateRange: '1947 – 1972',
+    aircraft: 'SR-71 BLACKBIRD',
+    tagline: 'Faster than the missiles they send after you.',
+    description:
+      'The superpower standoff demands engineering at extremes. Spy planes that fly above the reach of weapons. Programs so classified they don\'t officially exist. The SR-71 outran every threat ever fired at it.',
+  },
+  'Stealth Era': {
+    index: 3,
+    dateRange: '1974 – 1991',
+    aircraft: 'F-117 NIGHTHAWK',
+    tagline: 'The best radar cross-section is no radar cross-section.',
+    description:
+      'A classified revolution in how aircraft are designed — radar signature first, aerodynamics second. The F-117 is so aerodynamically unstable it requires a fly-by-wire computer just to stay airborne.',
+  },
+  'Modern Era': {
+    index: 4,
+    dateRange: '1991 – Present',
+    aircraft: 'F-35 LIGHTNING II',
+    tagline: 'A fighter. A network node. A flying supercomputer.',
+    description:
+      'The convergence of stealth, supersonics, and software-defined systems. Designed to be the most capable — and the most connected — combat aircraft ever fielded.',
+  },
+}
+
 export const MILESTONES = [
   {
     year: 1912,
