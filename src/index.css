@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap');
+
+:root {
+  --bg: #050709;
+  --surface: #0a0d12;
+  --surface-2: #0f1318;
+  --border: rgba(255, 255, 255, 0.06);
+  --border-accent: rgba(99, 179, 237, 0.3);
+
+  --text-primary: #e8edf2;
+  --text-secondary: #8a9ab0;
+  --text-muted: #4a5568;
+
+  --accent: #63b3ed;
+  --accent-2: #90cdf4;
+  --accent-warm: #f6ad55;
+  --accent-danger: #fc8181;
+  --accent-green: #68d391;
+
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --mode-speed: #f6ad55;
+  --mode-stealth: #2d3748;
+  --mode-precision: #63b3ed;
+}
+
+[data-mode='speed'] {
+  --accent: #f6ad55;
+  --border-accent: rgba(246, 173, 85, 0.3);
+}
+
+[data-mode='stealth'] {
+  --bg: #020304;
+  --accent: #4a5568;
+  --border-accent: rgba(74, 85, 104, 0.4);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border-accent); border-radius: 2px; }
+
+::selection {
+  background: rgba(99, 179, 237, 0.2);
+  color: var(--accent-2);
+}
+
+.font-display { font-family: var(--font-display); }
+.font-mono    { font-family: var(--font-mono); }
+
+.section {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.04) 2px,
+    rgba(0, 0, 0, 0.04) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
