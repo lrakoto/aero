@@ -56,7 +56,12 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  cursor: none;
 }
+
+/* Restore cursor for inputs and textareas */
+input, textarea, select { cursor: text; }
+a, button, [role="button"] { cursor: none; }
 
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: var(--bg); }

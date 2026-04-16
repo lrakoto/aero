@@ -1,15 +1,8 @@
 import { motion } from 'framer-motion'
 import { useUIStore } from '../store/uiStore'
 
-const MODES = [
-  { id: 'default',   label: 'SYS' },
-  { id: 'speed',     label: 'SPD' },
-  { id: 'stealth',   label: 'STL' },
-  { id: 'precision', label: 'NVG' },
-]
-
 export default function Nav() {
-  const { activeMode, setMode, hudVisible, toggleHUD } = useUIStore()
+  const { hudVisible, toggleHUD } = useUIStore()
 
   return (
     <motion.nav
@@ -63,28 +56,6 @@ export default function Nav() {
 
         {/* Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          {MODES.map((mode) => (
-            <button
-              key={mode.id}
-              onClick={() => setMode(mode.id)}
-              style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: '10px',
-                letterSpacing: '0.14em',
-                padding: '5px 13px',
-                border: `1px solid ${activeMode === mode.id ? 'var(--border-accent)' : 'var(--border)'}`,
-                borderRadius: '3px',
-                background: activeMode === mode.id ? 'rgba(99,179,237,0.08)' : 'transparent',
-                color: activeMode === mode.id ? 'var(--accent)' : 'var(--text-muted)',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-              }}
-            >
-              {mode.label}
-            </button>
-          ))}
-
-          <div style={{ width: '1px', height: '18px', background: 'var(--border)', margin: '0 8px' }} />
 
           <button
             onClick={toggleHUD}
