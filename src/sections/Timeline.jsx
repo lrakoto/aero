@@ -209,134 +209,57 @@ function SpineSection({ milestones, accentColor }) {
   )
 }
 
-// ─── Era chapter panel — scroll-mapped animations ────────────────────────────
+// ─── Era chapter panel ────────────────────────────────────────────────────────
 
 function EraChapter({ era, eraData, milestones, eraIndex }) {
-  const panelRef    = useRef(null)
+  const panelRef     = useRef(null)
   const setActiveEra = useUIStore((s) => s.setActiveEra)
 
-  // One-shot trigger for the aircraft path-drawing animation
-  const drawTrigger = useInView(panelRef, { once: true, margin: '-10%' })
+  // Trigger for text stagger — fires once when section enters
+  const textInView = useInView(panelRef, { once: true, margin: '-8%' })
 
-  // Track when era is visible for the HUD mission panel
-  useInView(panelRef, {
-    onChange: (v) => { if (v) setActiveEra(`era-${era.toLowerCase().replace(/\s+/g, '-')}`) },
-  })
+  // Update HUD era label when this panel is in view
+  const eraInView = useInView(panelRef, { margin: '-30% 0px -30% 0px' })
+  if (eraInView) setActiveEra(`era-${era.toLowerCase().replace(/\s+/g, '-')}`)
 
-  // Enter progress: 0 when panel bottom enters viewport, 1 when panel top clears the nav
-  const { scrollYProgress: enter } = useScroll({
+  // Raw scroll progress for aircraft path drawing (0 = not yet, 1 = complete)
+  const { scrollYProgress: rawDraw } = useScroll({
     target: panelRef,
-    offset: ['start 92%', 'start 14%'],
+    offset: ['start 88%', 'center 42%'],
   })
+  // Spring-smoothed so drawing follows scroll with slight inertia
+  const drawProgress = useSpring(rawDraw, { stiffness: 50, damping: 18 })
 
-  // Slow parallax for background and aircraft (full scroll through panel)
+  // Parallax through the full panel
   const { scrollYProgress: through } = useScroll({
     target: panelRef,
     offset: ['start end', 'end start'],
   })
   const bgY       = useTransform(through, [0, 1], ['-5%', '5%'])
-  const aircraftY = useTransform(through, [0, 1], [-32, 32])
+  const aircraftY = useTransform(through, [0, 1], [-28, 28])
 
-  const isEven    = eraIndex % 2 === 0
+  // Aircraft position/opacity driven by entry scroll
+  const { scrollYProgress: enter } = useScroll({
+    target: panelRef,
+    offset: ['start 90%', 'start 18%'],
+  })
+  const isEven        = eraIndex % 2 === 0
+  const aircraftSlide = useTransform(enter, [0, 0.65], [isEven ? 68 : -68, 0])
+  const aircraftOp    = useTransform(enter, [0, 0.32], [0, 1])
+  const aircraftScale = useTransform(enter, [0, 0.60], [0.93, 1])
+
   const eraAccents = ['var(--accent)', 'var(--accent-warm)', 'var(--accent)', 'var(--accent-danger)', 'var(--accent-green)']
   const eraAccent  = eraAccents[eraIndex] || 'var(--accent)'
 
-  // --- Per-element scroll-mapped transforms (staggered) ---
-  const eyebrowOp = useTransform(enter, [0.00, 0.24], [0, 1])
-  const eyebrowY  = useTransform(enter, [0.00, 0.24], [16, 0])
-
-  const dateOp    = useTransform(enter, [0.08, 0.32], [0, 1])
-  const dateY     = useTransform(enter, [0.08, 0.32], [22, 0])
-
-  const labelOp   = useTransform(enter, [0.16, 0.40], [0, 1])
-
-  const tagOp     = useTransform(enter, [0.24, 0.48], [0, 1])
-  const tagY      = useTransform(enter, [0.24, 0.48], [18, 0])
-
-  const descOp    = useTransform(enter, [0.32, 0.56], [0, 1])
-  const descY     = useTransform(enter, [0.32, 0.56], [14, 0])
-
-  const badgeOp   = useTransform(enter, [0.40, 0.62], [0, 1])
-
-  // Aircraft: slides in from outer edge, fades + scales up
-  const aircraftSlide = useTransform(enter, [0.04, 0.64], [isEven ? 72 : -72, 0])
-  const aircraftOp    = useTransform(enter, [0.04, 0.36], [0, 1])
-  const aircraftScale = useTransform(enter, [0.04, 0.60], [0.92, 1])
-
-  const TextBlock = () => (
-    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '72px 56px' }}>
-
-      <motion.div style={{ opacity: eyebrowOp, y: eyebrowY, marginBottom: '20px',
-        fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.3em',
-        color: eraAccent, display: 'flex', alignItems: 'center', gap: '12px',
-      }}>
-        <span style={{ width: '26px', height: '1px', background: eraAccent }} />
-        {String(eraIndex + 1).padStart(2, '0')} // {era.toUpperCase()}
-      </motion.div>
-
-      <motion.div style={{ opacity: dateOp, y: dateY, marginBottom: '14px',
-        fontFamily: 'var(--font-display)',
-        fontSize: 'clamp(44px, 4.5vw, 68px)',
-        fontWeight: 700, letterSpacing: '-0.04em', lineHeight: 0.92,
-        color: eraAccent,
-      }}>
-        {eraData.dateRange}
-      </motion.div>
-
-      <motion.div style={{ opacity: labelOp, marginBottom: '22px',
-        fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.25em',
-        color: 'var(--text-muted)',
-      }}>
-        {eraData.aircraft}
-      </motion.div>
-
-      <motion.h2 style={{ opacity: tagOp, y: tagY, marginBottom: '18px',
-        fontFamily: 'var(--font-display)',
-        fontSize: 'clamp(20px, 2.2vw, 30px)',
-        fontWeight: 600, letterSpacing: '-0.025em', lineHeight: 1.18,
-        color: 'var(--text-primary)',
-      }}>
-        {eraData.tagline}
-      </motion.h2>
-
-      <motion.p style={{ opacity: descOp, y: descY, marginBottom: '28px',
-        fontFamily: 'var(--font-body)', fontSize: '14px',
-        color: 'var(--text-secondary)', lineHeight: 1.75, maxWidth: '400px',
-      }}>
-        {eraData.description}
-      </motion.p>
-
-      <motion.span style={{ opacity: badgeOp, alignSelf: 'flex-start',
-        fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.18em',
-        padding: '5px 12px', borderRadius: '2px',
-        border: `1px solid ${eraAccent}45`, color: eraAccent,
-        background: `${eraAccent}0d`,
-        display: 'inline-block',
-      }}>
-        {milestones.length} RECORDS
-      </motion.span>
-    </div>
-  )
-
-  const AircraftBlock = () => (
-    <div style={{
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: '72px 48px', position: 'relative', overflow: 'hidden',
-    }}>
-      <div style={{
-        position: 'absolute', inset: 0,
-        background: `radial-gradient(ellipse 65% 65% at 50% 50%, ${eraAccent}08 0%, transparent 70%)`,
-        pointerEvents: 'none',
-      }} />
-      <motion.div style={{
-        width: '100%', maxWidth: '340px', aspectRatio: '1',
-        x: aircraftSlide, y: aircraftY,
-        opacity: aircraftOp, scale: aircraftScale,
-      }}>
-        <EraAircraft era={era} animate={drawTrigger} color={eraAccent} />
-      </motion.div>
-    </div>
-  )
+  // Text stagger variants — useInView triggered (reliable)
+  const stagger = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.09, delayChildren: 0.04 } },
+  }
+  const item = {
+    hidden:  { opacity: 0, y: 18 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] } },
+  }
 
   return (
     <div id={`era-${era.toLowerCase().replace(/\s+/g, '-')}`}>
@@ -344,36 +267,166 @@ function EraChapter({ era, eraData, milestones, eraIndex }) {
       {/* Full-bleed chapter panel */}
       <div ref={panelRef} style={{ position: 'relative', overflow: 'hidden', borderTop: '1px solid var(--border)' }}>
 
-        {/* Parallax grid background */}
+        {/* Parallax grid */}
         <motion.div style={{
-          position: 'absolute', inset: '-10%',
+          position: 'absolute', inset: '-10%', zIndex: 0,
           backgroundImage: `
             linear-gradient(rgba(99,179,237,0.016) 1px, transparent 1px),
             linear-gradient(90deg, rgba(99,179,237,0.016) 1px, transparent 1px)
           `,
           backgroundSize: '80px 80px',
-          y: bgY, zIndex: 0,
+          y: bgY,
         }} />
 
-        {/* Constrained content grid */}
+        {/* Constrained grid */}
         <div style={{
           position: 'relative', zIndex: 1,
           maxWidth: '1280px', margin: '0 auto',
           display: 'grid', gridTemplateColumns: '1fr 1fr',
           minHeight: '88vh',
         }}>
-          {isEven
-            ? <><TextBlock /><AircraftBlock /></>
-            : <><AircraftBlock /><TextBlock /></>
-          }
+
+          {/* ── Text side ── */}
+          {isEven ? (
+            <motion.div
+              variants={stagger} initial="hidden" animate={textInView ? 'visible' : 'hidden'}
+              style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '72px 56px' }}
+            >
+              <motion.div variants={item} style={{
+                fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.3em',
+                color: eraAccent, marginBottom: '20px',
+                display: 'flex', alignItems: 'center', gap: '12px',
+              }}>
+                <span style={{ width: '26px', height: '1px', background: eraAccent }} />
+                {String(eraIndex + 1).padStart(2, '0')} // {era.toUpperCase()}
+              </motion.div>
+              <motion.div variants={item} style={{
+                fontFamily: 'var(--font-display)', fontWeight: 700,
+                fontSize: 'clamp(44px, 4.5vw, 68px)', letterSpacing: '-0.04em', lineHeight: 0.92,
+                color: eraAccent, marginBottom: '14px',
+              }}>
+                {eraData.dateRange}
+              </motion.div>
+              <motion.div variants={item} style={{
+                fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.25em',
+                color: 'var(--text-muted)', marginBottom: '22px',
+              }}>
+                {eraData.aircraft}
+              </motion.div>
+              <motion.h2 variants={item} style={{
+                fontFamily: 'var(--font-display)', fontWeight: 600,
+                fontSize: 'clamp(20px, 2.2vw, 30px)', letterSpacing: '-0.025em', lineHeight: 1.18,
+                color: 'var(--text-primary)', marginBottom: '18px',
+              }}>
+                {eraData.tagline}
+              </motion.h2>
+              <motion.p variants={item} style={{
+                fontFamily: 'var(--font-body)', fontSize: '14px',
+                color: 'var(--text-secondary)', lineHeight: 1.75, maxWidth: '400px', marginBottom: '28px',
+              }}>
+                {eraData.description}
+              </motion.p>
+              <motion.span variants={item} style={{
+                alignSelf: 'flex-start', display: 'inline-block',
+                fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.18em',
+                padding: '5px 12px', borderRadius: '2px',
+                border: `1px solid ${eraAccent}45`, color: eraAccent, background: `${eraAccent}0d`,
+              }}>
+                {milestones.length} RECORDS
+              </motion.span>
+            </motion.div>
+          ) : (
+            /* Aircraft left */
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: '72px 48px', position: 'relative', overflow: 'hidden',
+            }}>
+              <div style={{
+                position: 'absolute', inset: 0,
+                background: `radial-gradient(ellipse 65% 65% at 50% 50%, ${eraAccent}08 0%, transparent 70%)`,
+              }} />
+              <motion.div style={{
+                width: '100%', maxWidth: '340px', aspectRatio: '1',
+                x: aircraftSlide, y: aircraftY, opacity: aircraftOp, scale: aircraftScale,
+              }}>
+                <EraAircraft era={era} drawProgress={drawProgress} color={eraAccent} />
+              </motion.div>
+            </div>
+          )}
+
+          {/* ── Other side ── */}
+          {isEven ? (
+            /* Aircraft right */
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: '72px 48px', position: 'relative', overflow: 'hidden',
+            }}>
+              <div style={{
+                position: 'absolute', inset: 0,
+                background: `radial-gradient(ellipse 65% 65% at 50% 50%, ${eraAccent}08 0%, transparent 70%)`,
+              }} />
+              <motion.div style={{
+                width: '100%', maxWidth: '340px', aspectRatio: '1',
+                x: aircraftSlide, y: aircraftY, opacity: aircraftOp, scale: aircraftScale,
+              }}>
+                <EraAircraft era={era} drawProgress={drawProgress} color={eraAccent} />
+              </motion.div>
+            </div>
+          ) : (
+            /* Text right */
+            <motion.div
+              variants={stagger} initial="hidden" animate={textInView ? 'visible' : 'hidden'}
+              style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '72px 56px' }}
+            >
+              <motion.div variants={item} style={{
+                fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.3em',
+                color: eraAccent, marginBottom: '20px',
+                display: 'flex', alignItems: 'center', gap: '12px',
+              }}>
+                <span style={{ width: '26px', height: '1px', background: eraAccent }} />
+                {String(eraIndex + 1).padStart(2, '0')} // {era.toUpperCase()}
+              </motion.div>
+              <motion.div variants={item} style={{
+                fontFamily: 'var(--font-display)', fontWeight: 700,
+                fontSize: 'clamp(44px, 4.5vw, 68px)', letterSpacing: '-0.04em', lineHeight: 0.92,
+                color: eraAccent, marginBottom: '14px',
+              }}>
+                {eraData.dateRange}
+              </motion.div>
+              <motion.div variants={item} style={{
+                fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.25em',
+                color: 'var(--text-muted)', marginBottom: '22px',
+              }}>
+                {eraData.aircraft}
+              </motion.div>
+              <motion.h2 variants={item} style={{
+                fontFamily: 'var(--font-display)', fontWeight: 600,
+                fontSize: 'clamp(20px, 2.2vw, 30px)', letterSpacing: '-0.025em', lineHeight: 1.18,
+                color: 'var(--text-primary)', marginBottom: '18px',
+              }}>
+                {eraData.tagline}
+              </motion.h2>
+              <motion.p variants={item} style={{
+                fontFamily: 'var(--font-body)', fontSize: '14px',
+                color: 'var(--text-secondary)', lineHeight: 1.75, maxWidth: '400px', marginBottom: '28px',
+              }}>
+                {eraData.description}
+              </motion.p>
+              <motion.span variants={item} style={{
+                alignSelf: 'flex-start', display: 'inline-block',
+                fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.18em',
+                padding: '5px 12px', borderRadius: '2px',
+                border: `1px solid ${eraAccent}45`, color: eraAccent, background: `${eraAccent}0d`,
+              }}>
+                {milestones.length} RECORDS
+              </motion.span>
+            </motion.div>
+          )}
         </div>
       </div>
 
-      {/* Milestone cards with scroll spine */}
-      <div style={{
-        background: 'linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%)',
-        borderBottom: '1px solid var(--border)',
-      }}>
+      {/* Milestone cards */}
+      <div style={{ background: 'linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%)', borderBottom: '1px solid var(--border)' }}>
         <SpineSection milestones={milestones} accentColor={eraAccent} />
       </div>
     </div>

@@ -9,20 +9,18 @@ function CursorReticle() {
   const { hudVisible } = useUIStore()
   const [hovering, setHovering] = useState(false)
 
-  const rawX = useMotionValue(-200)
-  const rawY = useMotionValue(-200)
+  // True position — no lag, this is where clicks actually land
+  const trueX = useMotionValue(-200)
+  const trueY = useMotionValue(-200)
 
-  // Lagged spring — higher damping = smoother / less bouncy
-  const x = useSpring(rawX, { stiffness: 180, damping: 22, mass: 0.6 })
-  const y = useSpring(rawY, { stiffness: 180, damping: 22, mass: 0.6 })
+  // Lagged position for the reticle
+  const x = useSpring(trueX, { stiffness: 165, damping: 20, mass: 0.6 })
+  const y = useSpring(trueY, { stiffness: 165, damping: 20, mass: 0.6 })
 
   useEffect(() => {
-    const onMove = (e) => { rawX.set(e.clientX); rawY.set(e.clientY) }
-    const onEnter = (e) => {
-      if (e.target.closest('a, button, [role="button"]')) setHovering(true)
-    }
+    const onMove = (e) => { trueX.set(e.clientX); trueY.set(e.clientY) }
+    const onEnter = (e) => { if (e.target.closest('a, button, [role="button"]')) setHovering(true) }
     const onLeave = () => setHovering(false)
-
     window.addEventListener('mousemove', onMove)
     window.addEventListener('mouseover', onEnter)
     window.addEventListener('mouseout',  onLeave)
@@ -31,76 +29,87 @@ function CursorReticle() {
       window.removeEventListener('mouseover', onEnter)
       window.removeEventListener('mouseout',  onLeave)
     }
-  }, [rawX, rawY])
+  }, [trueX, trueY])
 
-  const size     = hovering ? 44 : hudVisible ? 36 : 28
-  const opacity  = hudVisible ? 0.75 : 0.22
-  const ringSize = hovering ? 52 : 40
+  const reticleSize = hovering ? 42 : hudVisible ? 34 : 26
+  const reticleOp   = hudVisible ? 0.7 : 0.28
 
   return (
     <>
-      {/* Lagging reticle */}
+      {/* ── True-position dot — shows exactly where clicks land ── */}
+      <motion.div
+        style={{
+          position: 'fixed', left: 0, top: 0,
+          x: trueX, y: trueY,
+          pointerEvents: 'none',
+          zIndex: 9002,
+        }}
+      >
+        <div style={{ position: 'relative', left: '-3px', top: '-3px' }}>
+          <motion.div
+            animate={{ scale: hovering ? 1.6 : 1, opacity: hovering ? 0.5 : 0.85 }}
+            transition={{ duration: 0.15 }}
+            style={{
+              width: '6px', height: '6px', borderRadius: '50%',
+              background: 'var(--accent)',
+            }}
+          />
+        </div>
+      </motion.div>
+
+      {/* ── Lagging reticle ── */}
       <motion.div
         style={{
           position: 'fixed', left: 0, top: 0,
           x, y,
           pointerEvents: 'none',
-          zIndex: 9000,
+          zIndex: 9001,
         }}
       >
-        {/* Offset wrapper so SVG is centered on cursor */}
-        <div style={{ position: 'relative', left: -size / 2, top: -size / 2 }}>
+        <div style={{ position: 'relative', left: -reticleSize / 2, top: -reticleSize / 2 }}>
           <motion.svg
-            width={size} height={size}
-            viewBox="0 0 36 36"
-            fill="none"
-            animate={{ width: size, height: size, opacity }}
+            viewBox="0 0 36 36" fill="none"
+            animate={{ width: reticleSize, height: reticleSize, opacity: reticleOp }}
             transition={{ duration: 0.2 }}
           >
-            {/* Outer corner brackets */}
-            <path d="M 4 10 L 4 4 L 10 4"   stroke="var(--accent)" strokeWidth="1.2" strokeLinecap="round" />
-            <path d="M 26 4 L 32 4 L 32 10"  stroke="var(--accent)" strokeWidth="1.2" strokeLinecap="round" />
-            <path d="M 4 26 L 4 32 L 10 32"  stroke="var(--accent)" strokeWidth="1.2" strokeLinecap="round" />
+            {/* Corner brackets */}
+            <path d="M 4 10 L 4 4 L 10 4"    stroke="var(--accent)" strokeWidth="1.2" strokeLinecap="round" />
+            <path d="M 26 4 L 32 4 L 32 10"   stroke="var(--accent)" strokeWidth="1.2" strokeLinecap="round" />
+            <path d="M 4 26 L 4 32 L 10 32"   stroke="var(--accent)" strokeWidth="1.2" strokeLinecap="round" />
             <path d="M 32 26 L 32 32 L 26 32" stroke="var(--accent)" strokeWidth="1.2" strokeLinecap="round" />
-
-            {/* Center circle */}
-            <circle cx="18" cy="18" r="4" stroke="var(--accent)" strokeWidth="0.9" />
-
-            {/* Cross hairs (only when HUD on or hovering) */}
+            {/* Center ring */}
+            <circle cx="18" cy="18" r="5" stroke="var(--accent)" strokeWidth="0.9" />
+            {/* Cross hairs — visible when HUD on or hovering */}
             {(hudVisible || hovering) && (
               <>
-                <line x1="18" y1="2"  x2="18" y2="13" stroke="var(--accent)" strokeWidth="0.8" />
-                <line x1="18" y1="23" x2="18" y2="34" stroke="var(--accent)" strokeWidth="0.8" />
-                <line x1="2"  y1="18" x2="13" y2="18" stroke="var(--accent)" strokeWidth="0.8" />
-                <line x1="23" y1="18" x2="34" y2="18" stroke="var(--accent)" strokeWidth="0.8" />
+                <line x1="18" y1="1"  x2="18" y2="12" stroke="var(--accent)" strokeWidth="0.8" opacity="0.7" />
+                <line x1="18" y1="24" x2="18" y2="35" stroke="var(--accent)" strokeWidth="0.8" opacity="0.7" />
+                <line x1="1"  y1="18" x2="12" y2="18" stroke="var(--accent)" strokeWidth="0.8" opacity="0.7" />
+                <line x1="24" y1="18" x2="35" y2="18" stroke="var(--accent)" strokeWidth="0.8" opacity="0.7" />
               </>
             )}
           </motion.svg>
         </div>
       </motion.div>
 
-      {/* Outer hover ring — larger, more lagged */}
-      {hovering && (
-        <motion.div
-          style={{
-            position: 'fixed', left: 0, top: 0,
-            x, y,
-            pointerEvents: 'none',
-            zIndex: 8999,
-          }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <div style={{ position: 'relative', left: -ringSize / 2, top: -ringSize / 2 }}>
-            <svg width={ringSize} height={ringSize} viewBox="0 0 52 52" fill="none">
-              <circle cx="26" cy="26" r="24"
-                stroke="var(--accent)" strokeWidth="0.6" opacity={0.3}
-              />
-            </svg>
-          </div>
-        </motion.div>
-      )}
+      {/* Hover ring */}
+      <AnimatePresence>
+        {hovering && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.7 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.7 }}
+            transition={{ duration: 0.18 }}
+            style={{ position: 'fixed', left: 0, top: 0, x, y, pointerEvents: 'none', zIndex: 9000 }}
+          >
+            <div style={{ position: 'relative', left: '-24px', top: '-24px' }}>
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <circle cx="24" cy="24" r="22" stroke="var(--accent)" strokeWidth="0.6" opacity="0.25" />
+              </svg>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   )
 }
@@ -316,17 +325,17 @@ export default function HUDOverlay() {
               zIndex: 80,
             }}
           >
-            {/* Theme switcher — top left */}
+            {/* Theme switcher — below nav, top left */}
             <div style={{
-              position: 'absolute', top: '80px', left: '32px',
+              position: 'absolute', top: '88px', left: '32px',
               pointerEvents: 'all',
             }}>
               <ThemePanel />
             </div>
 
-            {/* Mission progress — top right */}
+            {/* Mission progress — below nav, top right */}
             <div style={{
-              position: 'absolute', top: '80px', right: '32px',
+              position: 'absolute', top: '88px', right: '32px',
               pointerEvents: 'all',
             }}>
               <MissionPanel />
