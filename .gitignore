@@ -1,5 +1,6 @@
 node_modules/
 dist/
+aero-deploy-*.zip
 .DS_Store
 *.local
 

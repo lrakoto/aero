@@ -182,7 +182,7 @@ export default function OceanCanvas() {
       resize()
       rafId = requestAnimationFrame(render)
     }
-    image.src = '/assets/images/dark-ocean-aerial-v3.jpg'
+    image.src = `${import.meta.env.BASE_URL}assets/images/dark-ocean-aerial-v3.jpg`
 
     window.addEventListener('pointermove', onPointerMove, { passive: true })
     document.documentElement.addEventListener('mouseleave', onPointerLeave)
