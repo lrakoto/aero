@@ -71,6 +71,74 @@ body {
   z-index: 1;
 }
 
+.hero-title {
+  margin-bottom: 36px;
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-size: clamp(48px, 7vw, 100px);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 0.96;
+}
+
+.hero-title-mask {
+  display: block;
+  margin: -0.08em -0.08em;
+  padding: 0.08em;
+  overflow: hidden;
+}
+
+.hero-title-line {
+  display: block;
+  transform-origin: left center;
+}
+
+.hero-title-mask--engineering {
+  position: relative;
+}
+
+.hero-title-mask--engineering::after {
+  content: '';
+  position: absolute;
+  right: 8%;
+  bottom: 0.1em;
+  left: 8%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0;
+  transform: scaleX(0);
+  animation: engineering-trace 1.25s 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.hero-engineering {
+  position: relative;
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in srgb, var(--accent) 48%, transparent);
+  text-shadow: 0 0 28px color-mix(in srgb, var(--accent) 6%, transparent);
+  animation: engineering-outline 5.4s 1.8s ease-in-out infinite;
+}
+
+.hero-engineering-sheen {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    108deg,
+    transparent 34%,
+    color-mix(in srgb, var(--accent) 30%, transparent) 43%,
+    color-mix(in srgb, white 90%, var(--accent)) 49%,
+    color-mix(in srgb, var(--accent) 35%, transparent) 55%,
+    transparent 66%
+  );
+  background-position: 180% 0;
+  background-size: 250% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  opacity: 0;
+  pointer-events: none;
+  animation: engineering-sheen 5.4s 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
 .ambient-background {
   position: fixed;
   inset: 0;
@@ -218,6 +286,30 @@ body {
   to { transform: scale(1.065); }
 }
 
+@keyframes engineering-trace {
+  0% { opacity: 0; transform: scaleX(0); }
+  35% { opacity: 0.6; }
+  100% { opacity: 0; transform: scaleX(1); }
+}
+
+@keyframes engineering-outline {
+  0%, 18%, 100% {
+    -webkit-text-stroke-color: color-mix(in srgb, var(--accent) 42%, transparent);
+    text-shadow: 0 0 22px color-mix(in srgb, var(--accent) 4%, transparent);
+  }
+  46% {
+    -webkit-text-stroke-color: color-mix(in srgb, var(--accent) 68%, transparent);
+    text-shadow: 0 0 34px color-mix(in srgb, var(--accent) 13%, transparent);
+  }
+}
+
+@keyframes engineering-sheen {
+  0%, 18% { background-position: 180% 0; opacity: 0; }
+  26% { opacity: 0.86; }
+  48% { background-position: -80% 0; opacity: 0; }
+  100% { background-position: -80% 0; opacity: 0; }
+}
+
 /* Restore cursor for inputs and textareas */
 input, textarea, select { cursor: text; }
 a, button, [role="button"] { cursor: none; }
@@ -258,7 +350,10 @@ a, button, [role="button"] { cursor: none; }
 @media (prefers-reduced-motion: reduce) {
   .ambient-grid,
   .ambient-glow,
-  .ambient-ocean-texture {
+  .ambient-ocean-texture,
+  .hero-engineering,
+  .hero-engineering-sheen,
+  .hero-title-mask--engineering::after {
     animation: none;
   }
 

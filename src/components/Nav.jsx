@@ -23,7 +23,7 @@ export default function Nav() {
       <div style={{
         maxWidth: '1280px',
         margin: '0 auto',
-        padding: '0 56px',
+        padding: '0 clamp(18px, 4vw, 56px)',
         height: '64px',
         display: 'flex',
         alignItems: 'center',
@@ -47,11 +47,11 @@ export default function Nav() {
           </span>
           <span style={{
             fontFamily: 'var(--font-mono)',
-            fontSize: '9px',
+            fontSize: 'clamp(7px, 1.1vw, 9px)',
             color: 'var(--text-muted)',
             letterSpacing: '0.1em',
           }}>
-            SYS/01
+            LOCKHEED MARTIN
           </span>
         </div>
 

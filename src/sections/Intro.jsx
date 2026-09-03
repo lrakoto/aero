@@ -1,8 +1,9 @@
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { useRef } from 'react'
 
 export default function Intro() {
   const ref = useRef(null)
+  const reduceMotion = useReducedMotion()
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
   const y       = useTransform(scrollYProgress, [0, 1], [0, 100])
   const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0])
@@ -57,26 +58,47 @@ export default function Intro() {
         </motion.div>
 
         {/* Headline */}
-        <motion.h1
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.35 }}
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(48px, 7vw, 100px)',
-            fontWeight: 700,
-            letterSpacing: '-0.035em',
-            lineHeight: 0.96,
-            color: 'var(--text-primary)',
-            marginBottom: '36px',
-          }}
-        >
-          A century of<br />
-          <span style={{ WebkitTextStroke: '1px rgba(99,179,237,0.35)', color: 'transparent' }}>
-            engineering
+        <h1 className="hero-title" aria-label="A Century of Engineering.">
+          <span className="hero-title-mask">
+            <motion.span
+              className="hero-title-line"
+              initial={reduceMotion ? false : {
+                clipPath: 'inset(0 100% 0 0)',
+                filter: 'blur(8px)',
+                letterSpacing: '0.025em',
+              }}
+              animate={{
+                clipPath: 'inset(0 0% 0 0)',
+                filter: 'blur(0px)',
+                letterSpacing: '-0.035em',
+              }}
+              transition={{ duration: 1.05, delay: 0.32, ease: [0.16, 1, 0.3, 1] }}
+            >
+              A Century of
+            </motion.span>
           </span>
-          <br />velocity.
-        </motion.h1>
+          <span className="hero-title-mask hero-title-mask--engineering">
+            <motion.span
+              className="hero-title-line hero-engineering"
+              initial={reduceMotion ? false : {
+                clipPath: 'inset(0 100% 0 0)',
+                filter: 'blur(8px)',
+                letterSpacing: '0.025em',
+              }}
+              animate={{
+                clipPath: 'inset(0 0% 0 0)',
+                filter: 'blur(0px)',
+                letterSpacing: '-0.035em',
+              }}
+              transition={{ duration: 1.2, delay: 0.52, ease: [0.16, 1, 0.3, 1] }}
+            >
+              Engineering.
+              <span className="hero-engineering-sheen" aria-hidden="true">
+                Engineering.
+              </span>
+            </motion.span>
+          </span>
+        </h1>
 
         {/* Purpose statement */}
         <motion.p
