@@ -6,7 +6,7 @@ import { useUIStore, THEMES } from '../store/uiStore'
 // Always rendered. Subtle ring when HUD off; full crosshair when HUD on.
 
 function CursorReticle() {
-  const { hudVisible } = useUIStore()
+  const hudVisible = useUIStore((state) => state.hudVisible)
   const [hovering, setHovering] = useState(false)
 
   // True position — no lag, this is where clicks actually land
@@ -161,7 +161,8 @@ function PanelLabel({ children }) {
 // ─── Theme switcher panel ─────────────────────────────────────────────────────
 
 function ThemePanel() {
-  const { activeTheme, setTheme } = useUIStore()
+  const activeTheme = useUIStore((state) => state.activeTheme)
+  const setTheme = useUIStore((state) => state.setTheme)
 
   return (
     <Panel>
@@ -224,7 +225,9 @@ function ThemePanel() {
 // ─── Mission progress panel ───────────────────────────────────────────────────
 
 function MissionPanel() {
-  const { activeSection, activeEra, scrollProgress } = useUIStore()
+  const activeSection = useUIStore((state) => state.activeSection)
+  const activeEra = useUIStore((state) => state.activeEra)
+  const scrollProgress = useUIStore((state) => state.scrollProgress)
 
   // Derive a readable era label from the section / era tracking
   const eraLabel = activeEra
@@ -308,7 +311,7 @@ function MissionPanel() {
 // ─── Root ─────────────────────────────────────────────────────────────────────
 
 export default function HUDOverlay() {
-  const { hudVisible } = useUIStore()
+  const hudVisible = useUIStore((state) => state.hudVisible)
 
   return (
     <>

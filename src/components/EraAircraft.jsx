@@ -12,6 +12,7 @@ function Vega({ color, drawProgress }) {
   const stabs   = useTransform(drawProgress, [0.30, 0.85], [0, 1], { clamp: true })
   const details = useTransform(drawProgress, [0.50, 0.95], [0, 1], { clamp: true })
   const baseOp  = useTransform(drawProgress, [0,    0.08], [0, 1])
+  const fineOp  = useTransform(drawProgress, [0.38, 0.68], [0, 0.3])
   const annotOp = useTransform(drawProgress, [0.65, 0.88], [0, 0.35])
 
   return (
@@ -51,6 +52,14 @@ function Vega({ color, drawProgress }) {
         style={{ pathLength: details, opacity: baseOp }} />
       <motion.line x1="134" y1="30" x2="186" y2="30" stroke="currentColor" strokeWidth="1.5"
         style={{ pathLength: details, opacity: baseOp }} />
+      {/* Cabin, spars, and control surfaces */}
+      <motion.path d="M 149 76 C 149 57 154 47 160 47 C 166 47 171 57 171 76 L 169 112 L 151 112 Z"
+        stroke="currentColor" strokeWidth="0.65" style={{ pathLength: details, opacity: fineOp }} />
+      <motion.path d="M 138 157 L 35 178 M 182 157 L 285 178"
+        stroke="currentColor" strokeWidth="0.45" strokeDasharray="3 3"
+        style={{ pathLength: wings, opacity: fineOp }} />
+      <motion.path d="M 104 346 L 148 339 M 216 346 L 172 339"
+        stroke="currentColor" strokeWidth="0.55" style={{ pathLength: stabs, opacity: fineOp }} />
       {/* Centerline */}
       <motion.line x1="160" y1="18" x2="160" y2="356"
         stroke="currentColor" strokeWidth="0.5" strokeDasharray="5 4"
@@ -77,6 +86,7 @@ function P38({ color, drawProgress }) {
   const booms   = useTransform(drawProgress, [0.18, 0.72], [0, 1], { clamp: true })
   const details = useTransform(drawProgress, [0.40, 0.92], [0, 1], { clamp: true })
   const baseOp  = useTransform(drawProgress, [0,    0.08], [0, 1])
+  const fineOp  = useTransform(drawProgress, [0.34, 0.66], [0, 0.3])
   const annotOp = useTransform(drawProgress, [0.70, 0.90], [0, 0.35])
 
   return (
@@ -100,6 +110,16 @@ function P38({ color, drawProgress }) {
         style={{ pathLength: details, opacity: baseOp }} />
       <motion.circle cx="276" cy="88" r="20" stroke="currentColor" strokeWidth="0.7"
         style={{ pathLength: details, opacity: baseOp }} />
+      {/* Canopy, boom axes, and control-surface geometry */}
+      <motion.path d="M 181 111 Q 190 94 199 111 L 202 145 Q 190 158 178 145 Z"
+        stroke="currentColor" strokeWidth="0.65" style={{ pathLength: details, opacity: fineOp }} />
+      <motion.path d="M 104 91 L 104 258 M 276 91 L 276 258"
+        stroke="currentColor" strokeWidth="0.45" strokeDasharray="4 4"
+        style={{ pathLength: booms, opacity: fineOp }} />
+      <motion.path d="M 45 145 L 176 145 M 204 145 L 335 145 M 116 249 L 264 249"
+        stroke="currentColor" strokeWidth="0.5" style={{ pathLength: details, opacity: fineOp }} />
+      <motion.path d="M 90 88 L 118 88 M 104 74 L 104 102 M 262 88 L 290 88 M 276 74 L 276 102"
+        stroke="currentColor" strokeWidth="0.55" style={{ pathLength: details, opacity: fineOp }} />
       <motion.path d="M 78 222 L 60 268 L 78 268 Z"
         stroke="currentColor" strokeWidth="0.8" style={{ pathLength: details, opacity: baseOp }} />
       <motion.path d="M 302 222 L 320 268 L 302 268 Z"
@@ -120,6 +140,7 @@ function P38({ color, drawProgress }) {
 function SR71({ color, drawProgress }) {
   const nacelles = useTransform(drawProgress, [0.35, 0.80], [0, 1], { clamp: true })
   const baseOp   = useTransform(drawProgress, [0,    0.08], [0, 1])
+  const fineOp   = useTransform(drawProgress, [0.36, 0.70], [0, 0.3])
   const annotOp  = useTransform(drawProgress, [0.68, 0.90], [0, 0.35])
 
   return (
@@ -147,6 +168,16 @@ function SR71({ color, drawProgress }) {
         style={{ pathLength: nacelles, opacity: useTransform(drawProgress, [0.35, 0.5], [0, 0.22]) }} />
       <motion.circle cx="190" cy="14" r="3" fill="currentColor"
         style={{ opacity: useTransform(drawProgress, [0.75, 0.9], [0, 0.5]) }} />
+      {/* Cockpit, chines, nacelle axes, and elevon hinges */}
+      <motion.path d="M 183 48 L 190 31 L 197 48 L 202 70 L 178 70 Z"
+        stroke="currentColor" strokeWidth="0.65" style={{ pathLength: nacelles, opacity: fineOp }} />
+      <motion.path d="M 166 98 L 91 190 L 137 260 M 214 98 L 289 190 L 243 260"
+        stroke="currentColor" strokeWidth="0.5" style={{ pathLength: nacelles, opacity: fineOp }} />
+      <motion.path d="M 90 172 L 90 224 M 288 172 L 288 224"
+        stroke="currentColor" strokeWidth="0.45" strokeDasharray="3 3"
+        style={{ pathLength: nacelles, opacity: fineOp }} />
+      <motion.path d="M 44 226 L 137 265 M 336 226 L 243 265"
+        stroke="currentColor" strokeWidth="0.55" style={{ pathLength: nacelles, opacity: fineOp }} />
       <motion.line x1="10" y1="320" x2="370" y2="320" stroke="currentColor" strokeWidth="0.4"
         style={{ opacity: annotOp }} />
       <motion.line x1="10" y1="315" x2="10" y2="325" stroke="currentColor" strokeWidth="0.8"
@@ -166,6 +197,7 @@ function SR71({ color, drawProgress }) {
 function F117({ color, drawProgress }) {
   const facets  = useTransform(drawProgress, [0.20, 0.75], [0, 1], { clamp: true })
   const baseOp  = useTransform(drawProgress, [0,    0.08], [0, 1])
+  const fineOp  = useTransform(drawProgress, [0.34, 0.68], [0, 0.3])
   const annotOp = useTransform(drawProgress, [0.65, 0.88], [0, 0.35])
 
   return (
@@ -198,6 +230,13 @@ function F117({ color, drawProgress }) {
       <motion.line x1="192" y1="110" x2="192" y2="168"
         stroke="currentColor" strokeWidth="0.4"
         style={{ opacity: useTransform(drawProgress, [0.45, 0.6], [0, 0.25]) }} />
+      {/* Canopy, additional facet breaks, and exhaust slot */}
+      <motion.path d="M 176 72 L 204 72 L 214 108 L 166 108 Z"
+        stroke="currentColor" strokeWidth="0.65" style={{ pathLength: facets, opacity: fineOp }} />
+      <motion.path d="M 166 108 L 88 213 L 150 220 M 214 108 L 292 213 L 230 220"
+        stroke="currentColor" strokeWidth="0.5" style={{ pathLength: facets, opacity: fineOp }} />
+      <motion.path d="M 88 213 L 18 262 M 292 213 L 362 262 M 154 244 L 226 244"
+        stroke="currentColor" strokeWidth="0.55" style={{ pathLength: facets, opacity: fineOp }} />
       {/* Centerline */}
       <motion.line x1="190" y1="10" x2="190" y2="290"
         stroke="currentColor" strokeWidth="0.4" strokeDasharray="5 4"
@@ -215,6 +254,7 @@ function F117({ color, drawProgress }) {
 function F35({ color, drawProgress }) {
   const details = useTransform(drawProgress, [0.25, 0.80], [0, 1], { clamp: true })
   const baseOp  = useTransform(drawProgress, [0,    0.08], [0, 1])
+  const fineOp  = useTransform(drawProgress, [0.34, 0.68], [0, 0.3])
   const annotOp = useTransform(drawProgress, [0.65, 0.88], [0, 0.35])
 
   return (
@@ -243,6 +283,13 @@ function F35({ color, drawProgress }) {
       <motion.ellipse cx="190" cy="268" rx="16" ry="10"
         stroke="currentColor" strokeWidth="0.8"
         style={{ pathLength: details, opacity: baseOp }} />
+      {/* Canopy, diverterless inlets, wing hinges, and tail roots */}
+      <motion.path d="M 178 66 Q 190 40 202 66 L 207 106 Q 190 122 173 106 Z"
+        stroke="currentColor" strokeWidth="0.65" style={{ pathLength: details, opacity: fineOp }} />
+      <motion.path d="M 158 105 L 132 130 L 158 144 M 222 105 L 248 130 L 222 144"
+        stroke="currentColor" strokeWidth="0.6" style={{ pathLength: details, opacity: fineOp }} />
+      <motion.path d="M 67 198 L 142 244 M 313 198 L 238 244 M 151 247 L 164 220 M 229 247 L 216 220"
+        stroke="currentColor" strokeWidth="0.5" style={{ pathLength: details, opacity: fineOp }} />
       {/* Centerline */}
       <motion.line x1="190" y1="12" x2="190" y2="282"
         stroke="currentColor" strokeWidth="0.4" strokeDasharray="5 4"

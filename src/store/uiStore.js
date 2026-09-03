@@ -15,9 +15,9 @@ export const useUIStore = create((set) => ({
   activeEra:      '',
   scrollProgress: 0,
 
-  setTheme:          (t) => set({ activeTheme: t }),
+  setTheme:          (t) => set((state) => state.activeTheme === t ? state : { activeTheme: t }),
   toggleHUD:         ()  => set((s) => ({ hudVisible: !s.hudVisible })),
-  setActiveSection:  (s) => set({ activeSection: s }),
-  setActiveEra:      (e) => set({ activeEra: e }),
-  setScrollProgress: (p) => set({ scrollProgress: p }),
+  setActiveSection:  (s) => set((state) => state.activeSection === s ? state : { activeSection: s }),
+  setActiveEra:      (e) => set((state) => state.activeEra === e ? state : { activeEra: e }),
+  setScrollProgress: (p) => set((state) => state.scrollProgress === p ? state : { scrollProgress: p }),
 }))

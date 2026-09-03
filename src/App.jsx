@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useScroll, useMotionValueEvent } from 'framer-motion'
 import { useUIStore, THEMES } from './store/uiStore'
 import { useSmoothScroll } from './hooks/useSmoothScroll'
+import AmbientBackground from './components/AmbientBackground'
 import Nav from './components/Nav'
 import HUDOverlay from './components/HUDOverlay'
 import Intro from './sections/Intro'
@@ -9,7 +10,9 @@ import Timeline from './sections/Timeline'
 import './index.css'
 
 export default function App() {
-  const { activeTheme, setActiveSection, setScrollProgress } = useUIStore()
+  const activeTheme = useUIStore((state) => state.activeTheme)
+  const setActiveSection = useUIStore((state) => state.setActiveSection)
+  const setScrollProgress = useUIStore((state) => state.setScrollProgress)
   useSmoothScroll()
 
   // Apply theme CSS variables whenever the theme changes
@@ -43,7 +46,8 @@ export default function App() {
   }, [setActiveSection])
 
   return (
-    <div style={{ background: 'var(--bg)' }}>
+    <div className="app-shell">
+      <AmbientBackground />
       <Nav />
       <HUDOverlay />
       <main>

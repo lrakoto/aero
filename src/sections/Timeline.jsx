@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform, useSpring, useInView } from 'framer-motion'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { MILESTONES, ERA_DATA, CATEGORY_COLORS } from '../data/milestones'
 import EraAircraft from '../components/EraAircraft'
 import { useUIStore } from '../store/uiStore'
@@ -220,12 +220,16 @@ function EraChapter({ era, eraData, milestones, eraIndex }) {
 
   // Update HUD era label when this panel is in view
   const eraInView = useInView(panelRef, { margin: '-30% 0px -30% 0px' })
-  if (eraInView) setActiveEra(`era-${era.toLowerCase().replace(/\s+/g, '-')}`)
+  const eraId = `era-${era.toLowerCase().replace(/\s+/g, '-')}`
+
+  useEffect(() => {
+    if (eraInView) setActiveEra(eraId)
+  }, [eraId, eraInView, setActiveEra])
 
   // Raw scroll progress for aircraft path drawing (0 = not yet, 1 = complete)
   const { scrollYProgress: rawDraw } = useScroll({
     target: panelRef,
-    offset: ['start 88%', 'center 42%'],
+    offset: ['start 88%', 'center 55%'],
   })
   // Spring-smoothed so drawing follows scroll with slight inertia
   const drawProgress = useSpring(rawDraw, { stiffness: 50, damping: 18 })
@@ -426,7 +430,7 @@ function EraChapter({ era, eraData, milestones, eraIndex }) {
       </div>
 
       {/* Milestone cards */}
-      <div style={{ background: 'linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%)', borderBottom: '1px solid var(--border)' }}>
+      <div className="milestone-glass-section">
         <SpineSection milestones={milestones} accentColor={eraAccent} />
       </div>
     </div>

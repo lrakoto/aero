@@ -2,7 +2,8 @@ import { motion } from 'framer-motion'
 import { useUIStore } from '../store/uiStore'
 
 export default function Nav() {
-  const { hudVisible, toggleHUD } = useUIStore()
+  const hudVisible = useUIStore((state) => state.hudVisible)
+  const toggleHUD = useUIStore((state) => state.toggleHUD)
 
   return (
     <motion.nav
