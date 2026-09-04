@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform, useSpring, useInView } from 'framer-motion'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { MILESTONES, ERA_DATA, CATEGORY_COLORS } from '../data/milestones'
 import EraAircraft from '../components/EraAircraft'
 import { useUIStore } from '../store/uiStore'
@@ -437,80 +437,18 @@ function EraChapter({ era, eraData, milestones, eraIndex }) {
   )
 }
 
-// ─── Filter bar ───────────────────────────────────────────────────────────────
-
-function FilterBar({ active, setActive, count }) {
-  const cats = ['ALL', ...Object.keys(CATEGORY_COLORS)]
-  return (
-    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
-      {cats.map((cat) => {
-        const on = active === cat
-        const c  = cat === 'ALL' ? 'var(--text-secondary)' : CATEGORY_COLORS[cat]?.color
-        return (
-          <button key={cat} onClick={() => setActive(cat)} style={{
-            fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.18em',
-            padding: '5px 11px', borderRadius: '2px',
-            border: `1px solid ${on ? c + '70' : 'var(--border)'}`,
-            background: on ? (cat === 'ALL' ? 'rgba(138,154,176,0.08)' : CATEGORY_COLORS[cat]?.bg) : 'transparent',
-            color: on ? c : 'var(--text-muted)',
-            cursor: 'pointer', transition: 'all 0.2s ease',
-          }}>
-            {cat}
-          </button>
-        )
-      })}
-      <span style={{
-        fontFamily: 'var(--font-mono)', fontSize: '9px',
-        color: 'var(--text-muted)', marginLeft: '6px',
-      }}>
-        {count} RECORDS
-      </span>
-    </div>
-  )
-}
-
 // ─── Root ─────────────────────────────────────────────────────────────────────
 
 export default function Timeline() {
-  const [activeFilter, setActiveFilter] = useState('ALL')
-
-  const filtered = activeFilter === 'ALL'
-    ? MILESTONES
-    : MILESTONES.filter((m) => m.category === activeFilter)
-
   const eraOrder = Object.keys(ERA_DATA)
   const byEra = eraOrder.reduce((acc, era) => {
-    const items = filtered.filter((m) => m.era === era)
+    const items = MILESTONES.filter((m) => m.era === era)
     if (items.length > 0) acc[era] = items
     return acc
   }, {})
 
   return (
     <section id="timeline" style={{ position: 'relative' }}>
-
-      {/* Sticky filter bar */}
-      <div style={{
-        position: 'sticky', top: '64px', zIndex: 40,
-        background: 'rgba(5,7,9,0.94)',
-        backdropFilter: 'blur(14px)',
-        borderBottom: '1px solid var(--border)',
-      }}>
-        <div style={{
-          maxWidth: '1280px', margin: '0 auto',
-          padding: '14px 56px',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        }}>
-          <div style={{
-            fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.28em',
-            color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: '10px',
-          }}>
-            <span style={{ width: '18px', height: '1px', background: 'var(--accent)', opacity: 0.5 }} />
-            TIMELINE
-          </div>
-          <FilterBar active={activeFilter} setActive={setActiveFilter} count={filtered.length} />
-        </div>
-      </div>
-
       {/* Era chapters */}
       {Object.entries(byEra).map(([era, items]) => (
         <EraChapter

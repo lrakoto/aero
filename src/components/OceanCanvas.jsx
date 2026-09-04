@@ -33,6 +33,7 @@ vec2 coverUv(vec2 uv) {
   } else {
     uv.x = 0.5 + (uv.x - 0.5) * viewportAspect / textureAspect;
   }
+  uv = 0.5 + (uv - 0.5) * 1.26;
   return uv;
 }
 
@@ -57,7 +58,7 @@ void main() {
     * uPointerActive;
   uv += pointerDirection * wake * 0.0032;
 
-  vec3 color = texture(uTexture, clamp(uv, 0.001, 0.999)).rgb;
+  vec3 color = texture(uTexture, uv).rgb;
   float shimmer = 0.97 + (broad * 0.5 + crossing * 0.3 + fine * 0.2) * 0.035;
   fragColor = vec4(color * shimmer, 1.0);
 }`
@@ -172,8 +173,8 @@ export default function OceanCanvas() {
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true)
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.MIRRORED_REPEAT)
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
       gl.uniform1i(textureLocation, 0)
       gl.uniform2f(textureSizeLocation, image.naturalWidth, image.naturalHeight)

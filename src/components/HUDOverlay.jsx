@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion'
 import { useUIStore, THEMES } from '../store/uiStore'
+import PursuitAircraft from './PursuitAircraft'
 
 // ─── Cursor reticle ───────────────────────────────────────────────────────────
 // Always rendered. Subtle ring when HUD off; full crosshair when HUD on.
@@ -317,6 +318,7 @@ export default function HUDOverlay() {
     <>
       {/* Cursor reticle — always rendered */}
       <CursorReticle />
+      <PursuitAircraft />
 
       {/* HUD panels — only when toggled */}
       <AnimatePresence>

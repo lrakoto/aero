@@ -36,7 +36,7 @@ export default function Intro() {
         pointerEvents: 'none', zIndex: 0,
       }} />
 
-      <motion.div style={{ y, opacity, position: 'relative', zIndex: 2, textAlign: 'center', padding: '0 24px', maxWidth: '800px' }}>
+      <motion.div className="hero-glass-panel" style={{ y, opacity, position: 'relative', zIndex: 2, textAlign: 'center' }}>
 
         {/* Eyebrow */}
         <motion.div

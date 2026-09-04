@@ -81,6 +81,22 @@ body {
   line-height: 0.96;
 }
 
+.hero-glass-panel {
+  width: min(880px, calc(100vw - 64px));
+  padding: clamp(36px, 5vw, 66px) clamp(28px, 5.5vw, 72px);
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, rgba(255, 255, 255, 0.05));
+  border-radius: 18px;
+  background:
+    linear-gradient(145deg, rgba(13, 23, 31, 0.7), rgba(5, 9, 14, 0.48)),
+    linear-gradient(90deg, color-mix(in srgb, var(--accent) 5%, transparent), transparent 42%);
+  box-shadow:
+    0 34px 90px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.045),
+    0 0 0 1px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(22px) saturate(128%);
+  -webkit-backdrop-filter: blur(22px) saturate(128%);
+}
+
 .hero-title-mask {
   display: block;
   margin: -0.08em -0.08em;
@@ -176,13 +192,13 @@ body {
 
 .ambient-ocean-parallax {
   position: absolute;
-  inset: -12%;
+  inset: -7%;
   will-change: transform;
 }
 
 .ambient-ocean-scroll {
   position: absolute;
-  inset: -8%;
+  inset: -7%;
   will-change: transform;
 }
 
@@ -191,7 +207,7 @@ body {
   inset: 0;
   background: url('/assets/images/dark-ocean-aerial-v3.jpg') center / cover no-repeat;
   opacity: 0.88;
-  transform: scale(1.03);
+  transform: scale(1.005);
   animation: ambient-ocean-breathe 28s ease-in-out infinite alternate;
   overflow: hidden;
 }
@@ -281,6 +297,84 @@ body {
   will-change: transform;
 }
 
+.pursuit-flight {
+  position: fixed;
+  inset: 0;
+  z-index: 8995;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.pursuit-trail {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+
+.pursuit-trail line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-linecap: round;
+}
+
+.pursuit-trail__glow line {
+  filter: blur(5px);
+}
+
+.pursuit-trail__core line {
+  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 45%, transparent));
+}
+
+.pursuit-aircraft {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 44px;
+  height: 52px;
+  opacity: 0;
+  transform-origin: 22px 25px;
+  will-change: transform;
+}
+
+.pursuit-aircraft__model {
+  display: block;
+  overflow: visible;
+  transform-origin: center;
+  will-change: transform;
+  filter: drop-shadow(0 0 7px color-mix(in srgb, var(--accent) 40%, transparent));
+}
+
+.pursuit-aircraft__silhouette {
+  fill: rgba(5, 11, 17, 0.84);
+  stroke: color-mix(in srgb, var(--accent) 82%, white);
+  stroke-width: 1.05;
+}
+
+.pursuit-aircraft__spine,
+.pursuit-aircraft__facet {
+  stroke: color-mix(in srgb, var(--accent) 54%, transparent);
+  stroke-width: 0.65;
+}
+
+.pursuit-aircraft__cockpit {
+  fill: color-mix(in srgb, var(--accent) 30%, rgba(4, 10, 16, 0.9));
+  stroke: color-mix(in srgb, white 58%, var(--accent));
+  stroke-width: 0.65;
+}
+
+.pursuit-aircraft__thruster path {
+  fill: color-mix(in srgb, var(--accent) 56%, transparent);
+  filter: blur(1.2px);
+  transform-origin: center 24px;
+  animation: pursuit-thruster 0.16s ease-in-out infinite alternate;
+}
+
+.pursuit-aircraft__thruster circle {
+  fill: white;
+  opacity: calc(0.55 + var(--flight-speed, 1) * 0.2);
+  filter: drop-shadow(0 0 4px var(--accent));
+}
+
 .milestone-glass-section {
   position: relative;
   background:
@@ -306,8 +400,13 @@ body {
 }
 
 @keyframes ambient-ocean-breathe {
-  from { transform: scale(1.03); }
-  to { transform: scale(1.065); }
+  from { transform: scale(1.005); }
+  to { transform: scale(1.025); }
+}
+
+@keyframes pursuit-thruster {
+  from { transform: scaleY(0.72); opacity: 0.5; }
+  to { transform: scaleY(1.08); opacity: 0.9; }
 }
 
 @keyframes engineering-trace {
@@ -387,6 +486,7 @@ a, button, [role="button"] { cursor: none; }
   .ambient-grid,
   .ambient-glow,
   .ambient-ocean-texture,
+  .pursuit-aircraft__thruster path,
   .hero-engineering,
   .hero-engineering-sheen,
   .hero-title-mask--engineering::before,
@@ -400,5 +500,23 @@ a, button, [role="button"] { cursor: none; }
 
   .ambient-cursor-glow {
     display: none;
+  }
+
+  .pursuit-flight {
+    display: none;
+  }
+}
+
+@media (pointer: coarse) {
+  .pursuit-flight {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .hero-glass-panel {
+    width: calc(100vw - 28px);
+    padding: 34px 20px 38px;
+    border-radius: 12px;
   }
 }
