@@ -97,6 +97,30 @@ body {
   position: relative;
 }
 
+.hero-title-mask--engineering::before {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  top: 5%;
+  bottom: 4%;
+  left: 3%;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, white 72%, var(--accent)) 22%,
+    var(--accent) 70%,
+    transparent
+  );
+  box-shadow:
+    0 0 8px color-mix(in srgb, var(--accent) 62%, transparent),
+    -9px 0 18px color-mix(in srgb, var(--accent) 12%, transparent);
+  opacity: 0;
+  transform: rotate(7deg) translateY(0);
+  animation: engineering-scribe 2.7s 0.68s cubic-bezier(0.48, 0.02, 0.2, 1) forwards;
+  pointer-events: none;
+}
+
 .hero-title-mask--engineering::after {
   content: '';
   position: absolute;
@@ -107,7 +131,7 @@ body {
   background: linear-gradient(90deg, transparent, var(--accent), transparent);
   opacity: 0;
   transform: scaleX(0);
-  animation: engineering-trace 1.25s 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: engineering-trace 2.35s 1.08s cubic-bezier(0.48, 0.02, 0.2, 1) forwards;
 }
 
 .hero-engineering {
@@ -115,7 +139,7 @@ body {
   color: transparent;
   -webkit-text-stroke: 1px color-mix(in srgb, var(--accent) 48%, transparent);
   text-shadow: 0 0 28px color-mix(in srgb, var(--accent) 6%, transparent);
-  animation: engineering-outline 5.4s 1.8s ease-in-out infinite;
+  animation: engineering-outline 8.8s 3.75s ease-in-out infinite;
 }
 
 .hero-engineering-sheen {
@@ -136,7 +160,7 @@ body {
   -webkit-text-fill-color: transparent;
   opacity: 0;
   pointer-events: none;
-  animation: engineering-sheen 5.4s 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: engineering-sheen 8.8s 3.75s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 .ambient-background {
@@ -288,8 +312,20 @@ body {
 
 @keyframes engineering-trace {
   0% { opacity: 0; transform: scaleX(0); }
-  35% { opacity: 0.6; }
+  22% { opacity: 0.58; }
+  74% { opacity: 0.34; }
   100% { opacity: 0; transform: scaleX(1); }
+}
+
+@keyframes engineering-scribe {
+  0% { left: 3%; opacity: 0; transform: rotate(7deg) translateY(1px); }
+  7% { opacity: 0.86; }
+  23% { transform: rotate(6deg) translateY(-2px); }
+  39% { transform: rotate(8deg) translateY(2px); }
+  57% { transform: rotate(6deg) translateY(-1px); }
+  76% { transform: rotate(8deg) translateY(1px); }
+  92% { left: 97%; opacity: 0.72; }
+  100% { left: 99%; opacity: 0; transform: rotate(7deg) translateY(-1px); }
 }
 
 @keyframes engineering-outline {
@@ -304,9 +340,9 @@ body {
 }
 
 @keyframes engineering-sheen {
-  0%, 18% { background-position: 180% 0; opacity: 0; }
-  26% { opacity: 0.86; }
-  48% { background-position: -80% 0; opacity: 0; }
+  0%, 14% { background-position: 180% 0; opacity: 0; }
+  23% { opacity: 0.72; }
+  54% { background-position: -80% 0; opacity: 0; }
   100% { background-position: -80% 0; opacity: 0; }
 }
 
@@ -353,6 +389,7 @@ a, button, [role="button"] { cursor: none; }
   .ambient-ocean-texture,
   .hero-engineering,
   .hero-engineering-sheen,
+  .hero-title-mask--engineering::before,
   .hero-title-mask--engineering::after {
     animation: none;
   }

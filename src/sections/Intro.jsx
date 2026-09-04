@@ -64,15 +64,15 @@ export default function Intro() {
               className="hero-title-line"
               initial={reduceMotion ? false : {
                 clipPath: 'inset(0 100% 0 0)',
-                filter: 'blur(8px)',
-                letterSpacing: '0.025em',
+                filter: 'blur(2px)',
+                letterSpacing: '0.015em',
               }}
               animate={{
                 clipPath: 'inset(0 0% 0 0)',
                 filter: 'blur(0px)',
                 letterSpacing: '-0.035em',
               }}
-              transition={{ duration: 1.05, delay: 0.32, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 1.8, delay: 0.35, ease: [0.55, 0, 0.22, 1] }}
             >
               A Century of
             </motion.span>
@@ -82,15 +82,15 @@ export default function Intro() {
               className="hero-title-line hero-engineering"
               initial={reduceMotion ? false : {
                 clipPath: 'inset(0 100% 0 0)',
-                filter: 'blur(8px)',
-                letterSpacing: '0.025em',
+                filter: 'blur(1.5px)',
+                letterSpacing: '0.018em',
               }}
               animate={{
                 clipPath: 'inset(0 0% 0 0)',
                 filter: 'blur(0px)',
                 letterSpacing: '-0.035em',
               }}
-              transition={{ duration: 1.2, delay: 0.52, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 2.7, delay: 0.68, ease: [0.48, 0.02, 0.2, 1] }}
             >
               Engineering.
               <span className="hero-engineering-sheen" aria-hidden="true">
@@ -104,7 +104,7 @@ export default function Intro() {
         <motion.p
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
+          transition={{ duration: 1, delay: 2.65 }}
           style={{
             fontFamily: 'var(--font-body)',
             fontSize: '17px',
@@ -122,7 +122,7 @@ export default function Intro() {
         <motion.p
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.75 }}
+          transition={{ duration: 1, delay: 2.9 }}
           style={{
             fontFamily: 'var(--font-body)',
             fontSize: '15px',
@@ -140,7 +140,7 @@ export default function Intro() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
+          transition={{ duration: 1, delay: 3.2 }}
           style={{
             display: 'flex',
             justifyContent: 'center',
@@ -180,7 +180,7 @@ export default function Intro() {
           href="#timeline"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.1 }}
+          transition={{ duration: 0.9, delay: 3.55 }}
           style={{
             fontFamily: 'var(--font-mono)',
             fontSize: '11px',
@@ -210,7 +210,7 @@ export default function Intro() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.5 }}
+        transition={{ duration: 0.9, delay: 3.8 }}
         style={{
           position: 'absolute', bottom: '36px', left: '50%',
           transform: 'translateX(-50%)',
