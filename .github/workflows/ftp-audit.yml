@@ -1,0 +1,59 @@
+name: Audit suspicious files
+
+on:
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Triage
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          sudo apt-get install -y -qq lftp >/dev/null
+          mkdir -p /tmp/aud && cd /tmp/aud
+
+          # NOTE: repo is public, so this job never prints file contents -
+          # only metadata and which indicator patterns matched.
+          lftp -c "
+            set ftp:ssl-force true; set ssl:verify-certificate no;
+            set net:max-retries 1; set net:timeout 20;
+            open -u '$FTP_USERNAME','$FTP_PASSWORD' '$FTP_SERVER';
+            mget -O /tmp/aud ./threeohfivestudios.com/push_rbl2.php ./threeohfivestudios.com/push_rbl3.php ./threeohfivestudios.com/push_rbl_final.php ./threeohfivestudios.com/index.php ./threeohfivestudios.com/.htaccess;
+          " >/dev/null 2>&1 || true
+
+          echo "=== fetched ==="
+          ls -la /tmp/aud 2>/dev/null | tail -n +2
+
+          echo
+          echo "=== fingerprints ==="
+          for f in /tmp/aud/*; do
+            [ -f "$f" ] || continue
+            printf "%-22s %7s bytes  sha256:%s\n" "$(basename "$f")" "$(stat -c%s "$f")" "$(sha256sum "$f" | cut -c1-16)"
+          done
+
+          echo
+          echo "=== indicator scan (counts only, no source) ==="
+          for f in /tmp/aud/*; do
+            [ -f "$f" ] || continue
+            echo "--- $(basename "$f") ---"
+            hit=0
+            for pat in 'eval\s*\(' 'base64_decode' 'gzinflate' 'gzuncompress' 'str_rot13' 'shell_exec' 'passthru\s*\(' 'system\s*\(' 'popen\s*\(' 'proc_open' 'assert\s*\(' 'create_function' 'preg_replace\s*\(.*/e' 'move_uploaded_file' 'file_put_contents' 'fwrite\s*\(' 'curl_exec' '\$_POST' '\$_GET' '\$_REQUEST' '\$_COOKIE' '\$\$' 'chr\s*\(\s*[0-9]' 'php://input' 'allow_url_fopen' 'mail\s*\(' 'header\s*\(\s*.Location'; do
+              n=$(grep -aEic "$pat" "$f" 2>/dev/null || true)
+              if [ "${n:-0}" -gt 0 ]; then printf "  %-28s %s\n" "$pat" "$n"; hit=1; fi
+            done
+            [ "$hit" = 0 ] && echo "  (no indicators matched)"
+            echo "  longest single line: $(awk '{ if (length($0)>m) m=length($0) } END { print m+0 }' "$f")"
+            echo "  base64-ish blobs >100 chars: $(grep -aEoc '[A-Za-z0-9+/]{100,}={0,2}' "$f" 2>/dev/null || echo 0)"
+          done
+
+          echo
+          echo "=== all PHP in addon docroot, newest first ==="
+          lftp -c "
+            set ftp:ssl-force true; set ssl:verify-certificate no;
+            open -u '$FTP_USERNAME','$FTP_PASSWORD' '$FTP_SERVER';
+            cls -l --sort=date ./threeohfivestudios.com/;
+          " 2>&1 | head -30
