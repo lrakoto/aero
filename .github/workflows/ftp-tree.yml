@@ -7,48 +7,18 @@ jobs:
   tree:
     runs-on: ubuntu-latest
     steps:
-      - name: Diagnose connection
-        env:
-          FTP_SERVER: ${{ secrets.FTP_SERVER }}
-          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+      # pixelmix.co is public info, so this probe needs no secrets and
+      # tells us whether the transport works at all from GitHub's network.
+      - name: Probe GoDaddy origin
         run: |
-          sudo apt-get install -y -qq lftp netcat-openbsd dnsutils >/dev/null
-
-          echo "=== host shape (masked value, so check the derived facts) ==="
-          echo "length: ${#FTP_SERVER}"
-          case "$FTP_SERVER" in
-            *://*) echo "WARNING: value contains a scheme (ftp:// etc) - lftp wants a bare host" ;;
-            */*)   echo "WARNING: value contains a slash - lftp wants a bare host" ;;
-            *)     echo "shape looks like a bare host" ;;
-          esac
-
-          echo "=== DNS ==="
-          dig +short "$FTP_SERVER" | head -5 || echo "(no A record)"
-
-          echo "=== port reachability ==="
-          for p in 21 990 22; do
-            timeout 8 nc -zv "$FTP_SERVER" $p 2>&1 | tail -1 || echo "port $p: no answer"
+          sudo apt-get install -y -qq netcat-openbsd dnsutils >/dev/null
+          H=pixelmix.co
+          echo "=== resolves to ==="; dig +short $H
+          for p in 21 990 22 2222; do
+            printf "port %-5s " $p
+            timeout 10 nc -zv $H $p 2>&1 | tail -1
           done
-
-          echo "=== banner on 21 ==="
-          timeout 8 nc "$FTP_SERVER" 21 </dev/null 2>&1 | head -3 || echo "(no banner)"
-
-          echo "=== lftp explicit FTPS, verbose ==="
-          lftp -c "
-            debug 3;
-            set ftp:ssl-force true;
-            set ssl:verify-certificate no;
-            set net:max-retries 1; set net:timeout 15;
-            open -u '$FTP_USERNAME','$FTP_PASSWORD' '$FTP_SERVER';
-            pwd; cls -1 .;
-          " 2>&1 | tail -30 || true
-
-          echo "=== lftp plain FTP fallback ==="
-          lftp -c "
-            debug 3;
-            set ftp:ssl-allow false;
-            set net:max-retries 1; set net:timeout 15;
-            open -u '$FTP_USERNAME','$FTP_PASSWORD' '$FTP_SERVER';
-            pwd; cls -1 .;
-          " 2>&1 | tail -30 || true
+          echo "=== banner / FEAT on 21 ==="
+          timeout 12 bash -c "exec 3<>/dev/tcp/$H/21; printf 'FEAT\r\nQUIT\r\n' >&3; timeout 8 cat <&3" 2>&1 | head -20 || echo "(port 21 unreachable)"
+          echo "=== SSH banner on 22 ==="
+          timeout 10 bash -c "exec 3<>/dev/tcp/$H/22; timeout 6 head -c 100 <&3" 2>&1 | head -3 || echo "(port 22 unreachable)"
