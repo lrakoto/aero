@@ -1,8 +1,9 @@
 name: Deploy to threeohfivestudios.com/aero
 
 on:
-  push:
-    branches: [main]
+  # Auto-deploy on main is paused until FTP_SERVER_DIR is confirmed.
+  # push:
+  #   branches: [main]
   workflow_dispatch:
 
 concurrency:
