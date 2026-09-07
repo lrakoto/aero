@@ -19,7 +19,6 @@ jobs:
             set ssl:verify-certificate no;
             set net:max-retries 1; set net:timeout 20;
             open -u '$FTP_USERNAME','$FTP_PASSWORD' '$FTP_SERVER';
-            echo '=== login dir ==='; pwd;
-            echo '=== contents of login dir ==='; cls -1 .;
-            echo '=== dirs, depth 3 ==='; find -d 3 .;
+            echo '=== addon domain root ==='; cls -1 ./threeohfivestudios.com/;
+            echo '=== the aero dir ==='; cls -l ./threeohfivestudios.com/aero/;
           " 2>&1 | head -200
