@@ -7,19 +7,48 @@ jobs:
   tree:
     runs-on: ubuntu-latest
     steps:
-      - name: Show directory layout
+      - name: Diagnose connection
         env:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
-          sudo apt-get install -y -qq lftp >/dev/null
-          # $VARs expand in the shell here; lftp does not expand them itself.
+          sudo apt-get install -y -qq lftp netcat-openbsd dnsutils >/dev/null
+
+          echo "=== host shape (masked value, so check the derived facts) ==="
+          echo "length: ${#FTP_SERVER}"
+          case "$FTP_SERVER" in
+            *://*) echo "WARNING: value contains a scheme (ftp:// etc) - lftp wants a bare host" ;;
+            */*)   echo "WARNING: value contains a slash - lftp wants a bare host" ;;
+            *)     echo "shape looks like a bare host" ;;
+          esac
+
+          echo "=== DNS ==="
+          dig +short "$FTP_SERVER" | head -5 || echo "(no A record)"
+
+          echo "=== port reachability ==="
+          for p in 21 990 22; do
+            timeout 8 nc -zv "$FTP_SERVER" $p 2>&1 | tail -1 || echo "port $p: no answer"
+          done
+
+          echo "=== banner on 21 ==="
+          timeout 8 nc "$FTP_SERVER" 21 </dev/null 2>&1 | head -3 || echo "(no banner)"
+
+          echo "=== lftp explicit FTPS, verbose ==="
           lftp -c "
+            debug 3;
             set ftp:ssl-force true;
             set ssl:verify-certificate no;
+            set net:max-retries 1; set net:timeout 15;
             open -u '$FTP_USERNAME','$FTP_PASSWORD' '$FTP_SERVER';
-            echo '--- login dir ---'; pwd;
-            echo '--- here ---'; cls -1 .;
-            echo '--- depth 2 ---'; find -d 2 .;
-          " 2>&1 | head -150
+            pwd; cls -1 .;
+          " 2>&1 | tail -30 || true
+
+          echo "=== lftp plain FTP fallback ==="
+          lftp -c "
+            debug 3;
+            set ftp:ssl-allow false;
+            set net:max-retries 1; set net:timeout 15;
+            open -u '$FTP_USERNAME','$FTP_PASSWORD' '$FTP_SERVER';
+            pwd; cls -1 .;
+          " 2>&1 | tail -30 || true
