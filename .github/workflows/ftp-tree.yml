@@ -7,18 +7,19 @@ jobs:
   tree:
     runs-on: ubuntu-latest
     steps:
-      # pixelmix.co is public info, so this probe needs no secrets and
-      # tells us whether the transport works at all from GitHub's network.
-      - name: Probe GoDaddy origin
+      - name: Show directory layout
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
-          sudo apt-get install -y -qq netcat-openbsd dnsutils >/dev/null
-          H=pixelmix.co
-          echo "=== resolves to ==="; dig +short $H
-          for p in 21 990 22 2222; do
-            printf "port %-5s " $p
-            timeout 10 nc -zv $H $p 2>&1 | tail -1
-          done
-          echo "=== banner / FEAT on 21 ==="
-          timeout 12 bash -c "exec 3<>/dev/tcp/$H/21; printf 'FEAT\r\nQUIT\r\n' >&3; timeout 8 cat <&3" 2>&1 | head -20 || echo "(port 21 unreachable)"
-          echo "=== SSH banner on 22 ==="
-          timeout 10 bash -c "exec 3<>/dev/tcp/$H/22; timeout 6 head -c 100 <&3" 2>&1 | head -3 || echo "(port 22 unreachable)"
+          sudo apt-get install -y -qq lftp >/dev/null
+          lftp -c "
+            set ftp:ssl-force true;
+            set ssl:verify-certificate no;
+            set net:max-retries 1; set net:timeout 20;
+            open -u '$FTP_USERNAME','$FTP_PASSWORD' '$FTP_SERVER';
+            echo '=== login dir ==='; pwd;
+            echo '=== contents of login dir ==='; cls -1 .;
+            echo '=== dirs, depth 3 ==='; find -d 3 .;
+          " 2>&1 | head -200
