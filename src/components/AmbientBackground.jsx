@@ -1,8 +1,20 @@
 import { useEffect } from 'react'
 import { motion as Motion, useMotionValue, useScroll, useSpring, useTransform } from 'framer-motion'
 import OceanCanvas from './OceanCanvas'
+import { useUIStore } from '../store/uiStore'
 
-export default function AmbientBackground() {
+const ERA_INDEX = {
+  'era-origins': 0,
+  'era-wartime': 1,
+  'era-cold-war': 2,
+  'era-stealth-era': 3,
+  'era-modern-era': 4,
+}
+
+export default function AmbientBackground({ enabled = true }) {
+  const activeSection = useUIStore((state) => state.activeSection)
+  const activeEra = useUIStore((state) => state.activeEra)
+  const eraIndex = activeSection === 'intro' ? 0 : (ERA_INDEX[activeEra] ?? 0)
   const pointerX = useMotionValue(-600)
   const pointerY = useMotionValue(-600)
   const parallaxX = useMotionValue(0)
@@ -20,7 +32,7 @@ export default function AmbientBackground() {
   useEffect(() => {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
     const finePointer = window.matchMedia('(pointer: fine)')
-    if (reducedMotion.matches || !finePointer.matches) return undefined
+    if (!enabled || reducedMotion.matches || !finePointer.matches) return undefined
 
     const onPointerMove = ({ clientX, clientY }) => {
       pointerX.set(clientX)
@@ -41,25 +53,25 @@ export default function AmbientBackground() {
       window.removeEventListener('pointermove', onPointerMove)
       document.documentElement.removeEventListener('mouseleave', onPointerLeave)
     }
-  }, [parallaxX, parallaxY, pointerX, pointerY])
+  }, [enabled, parallaxX, parallaxY, pointerX, pointerY])
 
   return (
-    <div className="ambient-background" aria-hidden="true">
-      <Motion.div className="ambient-ocean-parallax" style={{ x: oceanX, y: oceanY }}>
-        <Motion.div className="ambient-ocean-scroll" style={{ y: oceanScrollY }}>
+    <div className="ambient-background" data-era={eraIndex} data-enabled={enabled} aria-hidden="true">
+      <Motion.div className="ambient-ocean-parallax" style={{ x: enabled ? oceanX : 0, y: enabled ? oceanY : 0 }}>
+        <Motion.div className="ambient-ocean-scroll" style={{ y: enabled ? oceanScrollY : 0 }}>
           <div className="ambient-ocean-texture">
-            <OceanCanvas />
+            <OceanCanvas eraIndex={eraIndex} enabled={enabled} />
           </div>
         </Motion.div>
       </Motion.div>
-      <Motion.div className="ambient-grid-parallax" style={{ x: gridX, y: gridY }}>
+      <Motion.div className="ambient-grid-parallax" style={{ x: enabled ? gridX : 0, y: enabled ? gridY : 0 }}>
         <div className="ambient-grid" />
       </Motion.div>
       <div className="ambient-glow ambient-glow--forward" />
       <div className="ambient-glow ambient-glow--aft" />
       <div className="ambient-track ambient-track--one" />
       <div className="ambient-track ambient-track--two" />
-      <Motion.div className="ambient-cursor-glow" style={{ x: glowX, y: glowY }} />
+      <Motion.div className="ambient-cursor-glow" style={{ x: enabled ? glowX : -600, y: enabled ? glowY : -600 }} />
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion as Motion, useScroll, useTransform } from 'framer-motion'
 import { useRef } from 'react'
 
 export default function Hero() {
@@ -7,7 +7,6 @@ export default function Hero() {
 
   const y     = useTransform(scrollYProgress, [0, 1], [0, 120])
   const opacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
-  const scale   = useTransform(scrollYProgress, [0, 1], [1, 1.04])
 
   return (
     <section
@@ -42,11 +41,11 @@ export default function Hero() {
         zIndex: 0,
       }} />
 
-      <motion.div
+      <Motion.div
         style={{ y, opacity, position: 'relative', zIndex: 2, textAlign: 'center', padding: '0 24px' }}
       >
         {/* Eyebrow */}
-        <motion.div
+        <Motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
@@ -65,10 +64,10 @@ export default function Hero() {
           <span style={{ width: '40px', height: '1px', background: 'var(--accent)', opacity: 0.5 }} />
           AERO SYSTEMS // ENGINEERING DIVISION
           <span style={{ width: '40px', height: '1px', background: 'var(--accent)', opacity: 0.5 }} />
-        </motion.div>
+        </Motion.div>
 
         {/* Headline */}
-        <motion.h1
+        <Motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.4 }}
@@ -92,10 +91,10 @@ export default function Hero() {
           </span>
           <br />
           It&apos;s engineered.
-        </motion.h1>
+        </Motion.h1>
 
         {/* Sub */}
-        <motion.p
+        <Motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.7 }}
@@ -111,10 +110,10 @@ export default function Hero() {
         >
           Exploring the intersection of speed, stealth, and precision
           in high-performance aerospace engineering.
-        </motion.p>
+        </Motion.p>
 
         {/* CTA */}
-        <motion.div
+        <Motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.9 }}
@@ -168,11 +167,11 @@ export default function Hero() {
           >
             MISSION BRIEF
           </a>
-        </motion.div>
-      </motion.div>
+        </Motion.div>
+      </Motion.div>
 
       {/* Scroll indicator */}
-      <motion.div
+      <Motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.4, duration: 1 }}
@@ -196,7 +195,7 @@ export default function Hero() {
         }}>
           SCROLL
         </span>
-        <motion.div
+        <Motion.div
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
           style={{
@@ -205,7 +204,7 @@ export default function Hero() {
             background: 'linear-gradient(180deg, var(--accent) 0%, transparent 100%)',
           }}
         />
-      </motion.div>
+      </Motion.div>
     </section>
   )
 }

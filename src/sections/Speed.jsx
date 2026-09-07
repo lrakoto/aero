@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform, useInView } from 'framer-motion'
+import { motion as Motion, useScroll, useTransform, useInView } from 'framer-motion'
 import { useRef } from 'react'
 
 function AirflowLines() {
@@ -12,7 +12,7 @@ function AirflowLines() {
         const y = 5 + (i / (lines.length - 1)) * 90
         const wave = Math.sin(i * 0.9) * 3
         return (
-          <motion.path
+          <Motion.path
             key={i}
             d={`M -5 ${y + wave}% Q 30 ${y - wave * 2}% 55 ${y + wave}% T 105 ${y + wave * 0.5}%`}
             fill="none"
@@ -34,7 +34,7 @@ function StatBox({ value, unit, label, delay = 0 }) {
   const inView = useInView(ref, { once: true })
 
   return (
-    <motion.div
+    <Motion.div
       ref={ref}
       initial={{ opacity: 0, y: 24 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -76,7 +76,7 @@ function StatBox({ value, unit, label, delay = 0 }) {
       }}>
         {label}
       </div>
-    </motion.div>
+    </Motion.div>
   )
 }
 
@@ -101,8 +101,8 @@ export default function Speed() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'center' }}>
 
           {/* Left: text */}
-          <motion.div style={{ x: textX }}>
-            <motion.div
+          <Motion.div style={{ x: textX }}>
+            <Motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
@@ -118,9 +118,9 @@ export default function Speed() {
             >
               <span style={{ width: '30px', height: '1px', background: 'var(--accent-warm)' }} />
               01 // SPEED
-            </motion.div>
+            </Motion.div>
 
-            <motion.h2
+            <Motion.h2
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
@@ -137,9 +137,9 @@ export default function Speed() {
             >
               Mach 3.2.<br />
               <span style={{ color: 'var(--accent-warm)' }}>Sustained.</span>
-            </motion.h2>
+            </Motion.h2>
 
-            <motion.p
+            <Motion.p
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
@@ -154,10 +154,10 @@ export default function Speed() {
               At extreme velocities, conventional engineering breaks down. Thermal
               management, structural integrity, and propulsion converge into a
               singular engineering challenge — outlast the physics.
-            </motion.p>
+            </Motion.p>
 
             {/* Inline data row */}
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
@@ -179,8 +179,8 @@ export default function Speed() {
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.15em', color: 'var(--text-muted)', marginTop: '4px' }}>{l}</div>
                 </div>
               ))}
-            </motion.div>
-          </motion.div>
+            </Motion.div>
+          </Motion.div>
 
           {/* Right: stat grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>

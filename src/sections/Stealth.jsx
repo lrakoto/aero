@@ -1,9 +1,9 @@
-import { motion, useInView } from 'framer-motion'
+import { motion as Motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 
 function RadarPing({ delay = 0 }) {
   return (
-    <motion.circle
+    <Motion.circle
       cx="50%"
       cy="50%"
       r="10"
@@ -38,7 +38,7 @@ function RadarDisplay() {
         <line x1="10" y1="170" x2="330" y2="170" stroke="rgba(99,179,237,0.06)" strokeWidth="1" />
 
         {/* Sweeper */}
-        <motion.line
+        <Motion.line
           x1="170" y1="170" x2="170" y2="30"
           stroke="var(--accent)"
           strokeWidth="1"
@@ -104,17 +104,17 @@ export default function Stealth() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'center' }}>
 
           {/* Left: radar */}
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={inView ? { opacity: 1, scale: 1 } : {}}
             transition={{ duration: 0.8 }}
           >
             <RadarDisplay />
-          </motion.div>
+          </Motion.div>
 
           {/* Right: text */}
           <div>
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={inView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.6 }}
@@ -129,9 +129,9 @@ export default function Stealth() {
             >
               <span style={{ width: '30px', height: '1px', background: 'var(--accent)' }} />
               02 // STEALTH
-            </motion.div>
+            </Motion.div>
 
-            <motion.h2
+            <Motion.h2
               initial={{ opacity: 0, x: 20 }}
               animate={inView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.7, delay: 0.1 }}
@@ -147,9 +147,9 @@ export default function Stealth() {
             >
               The best signature<br />
               <span style={{ color: 'var(--accent)' }}>is no signature.</span>
-            </motion.h2>
+            </Motion.h2>
 
-            <motion.p
+            <Motion.p
               initial={{ opacity: 0, x: 20 }}
               animate={inView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.7, delay: 0.2 }}
@@ -164,9 +164,9 @@ export default function Stealth() {
               Stealth isn&apos;t invisibility — it&apos;s geometry. Faceted surfaces,
               radar-absorbing materials, and thermal suppression work in concert
               to minimize every detectable signature.
-            </motion.p>
+            </Motion.p>
 
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0 }}
               animate={inView ? { opacity: 1 } : {}}
               transition={{ delay: 0.5 }}
@@ -210,7 +210,7 @@ export default function Stealth() {
                   </span>
                 </div>
               ))}
-            </motion.div>
+            </Motion.div>
           </div>
         </div>
       </div>

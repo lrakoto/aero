@@ -68,7 +68,7 @@ body {
 
 .app-shell > main {
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
 .hero-title {
@@ -180,6 +180,8 @@ body {
 }
 
 .ambient-background {
+  --era-wash: rgba(38, 117, 156, 0.08);
+  --era-vignette: rgba(2, 9, 14, 0.28);
   position: fixed;
   inset: 0;
   z-index: 0;
@@ -188,6 +190,37 @@ body {
   color: var(--accent);
   opacity: 0.82;
   transition: color 0.6s ease;
+}
+
+.ambient-background::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 76% 20%, var(--era-wash), transparent 46%),
+    linear-gradient(155deg, transparent 38%, var(--era-vignette));
+  opacity: 0.78;
+  transition: background 1.4s ease, opacity 1.4s ease;
+}
+
+.ambient-background[data-era='1'] {
+  --era-wash: rgba(159, 102, 48, 0.13);
+  --era-vignette: rgba(25, 10, 4, 0.3);
+}
+
+.ambient-background[data-era='2'] {
+  --era-wash: rgba(39, 105, 164, 0.15);
+  --era-vignette: rgba(2, 8, 22, 0.34);
+}
+
+.ambient-background[data-era='3'] {
+  --era-wash: rgba(122, 71, 92, 0.1);
+  --era-vignette: rgba(9, 3, 8, 0.42);
+}
+
+.ambient-background[data-era='4'] {
+  --era-wash: rgba(47, 151, 125, 0.13);
+  --era-vignette: rgba(2, 17, 15, 0.3);
 }
 
 .ambient-ocean-parallax {
@@ -219,6 +252,23 @@ body {
   height: 100%;
   display: block;
   filter: brightness(0.9) contrast(1.16) saturate(0.82);
+  transition: filter 1.4s ease;
+}
+
+.ambient-background[data-era='1'] .ambient-ocean-canvas {
+  filter: brightness(0.84) contrast(1.2) saturate(0.7) sepia(0.08);
+}
+
+.ambient-background[data-era='2'] .ambient-ocean-canvas {
+  filter: brightness(0.88) contrast(1.22) saturate(0.94) hue-rotate(4deg);
+}
+
+.ambient-background[data-era='3'] .ambient-ocean-canvas {
+  filter: brightness(0.72) contrast(1.32) saturate(0.48);
+}
+
+.ambient-background[data-era='4'] .ambient-ocean-canvas {
+  filter: brightness(0.92) contrast(1.12) saturate(0.98) hue-rotate(-7deg);
 }
 
 .ambient-ocean-texture::after {
@@ -247,7 +297,13 @@ body {
   transform: rotate(-7deg);
   animation: ambient-grid-drift 44s linear infinite;
   mask-image: radial-gradient(ellipse at center, black 18%, transparent 88%);
+  transition: background-size 1.4s ease, opacity 1.4s ease;
 }
+
+.ambient-background[data-era='1'] .ambient-grid { background-size: 76px 76px; opacity: 0.76; }
+.ambient-background[data-era='2'] .ambient-grid { background-size: 96px 96px; opacity: 0.9; }
+.ambient-background[data-era='3'] .ambient-grid { background-size: 64px 64px; opacity: 0.52; }
+.ambient-background[data-era='4'] .ambient-grid { background-size: 104px 104px; opacity: 0.84; }
 
 .ambient-glow {
   position: absolute;
@@ -300,7 +356,7 @@ body {
 .pursuit-flight {
   position: fixed;
   inset: 0;
-  z-index: 8995;
+  z-index: 1;
   overflow: hidden;
   pointer-events: none;
 }
@@ -373,6 +429,261 @@ body {
   fill: white;
   opacity: calc(0.55 + var(--flight-speed, 1) * 0.2);
   filter: drop-shadow(0 0 4px var(--accent));
+}
+
+.era-progress {
+  position: fixed;
+  z-index: 70;
+  top: 50%;
+  right: clamp(16px, 2.2vw, 34px);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.era-progress__label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-family: var(--font-mono);
+  font-size: 7px;
+  line-height: 1.5;
+  letter-spacing: 0.16em;
+  color: var(--text-muted);
+}
+
+.era-progress__label strong {
+  color: var(--accent);
+  font-size: 8px;
+  font-weight: 400;
+}
+
+.era-progress__rail {
+  position: relative;
+  width: 7px;
+  height: 116px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.era-progress__rail::before,
+.era-progress__fill {
+  content: '';
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: 1px;
+  background: var(--border);
+  transform-origin: top;
+}
+
+.era-progress__fill {
+  background: linear-gradient(var(--accent), color-mix(in srgb, var(--accent) 34%, transparent));
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+.era-progress__node {
+  position: relative;
+  z-index: 1;
+  width: 5px;
+  height: 5px;
+  border: 1px solid var(--text-muted);
+  border-radius: 50%;
+  background: var(--bg);
+  transition: border-color 0.4s ease, background 0.4s ease, transform 0.4s ease;
+}
+
+.era-progress__node.is-complete {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.era-progress__node.is-active {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 50%, transparent);
+  transform: scale(1.5);
+}
+
+.era-aircraft-schematic {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.era-aircraft-schematic > svg {
+  position: relative;
+  z-index: 1;
+}
+
+.schematic-scan {
+  position: absolute;
+  z-index: 2;
+  top: 8%;
+  bottom: 8%;
+  left: 0;
+  width: 1px;
+  background: linear-gradient(transparent, var(--accent) 28%, rgba(255, 255, 255, 0.72) 50%, var(--accent) 72%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 32%, transparent);
+  pointer-events: none;
+}
+
+.schematic-callout {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  color: var(--accent);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.schematic-callout[data-side='right'] {
+  flex-direction: row-reverse;
+  transform: translateX(-100%);
+}
+
+.schematic-callout__node {
+  width: 4px;
+  height: 4px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.schematic-callout__leader {
+  width: clamp(16px, 2.6vw, 32px);
+  height: 1px;
+  margin: 0 5px;
+  background: linear-gradient(90deg, currentColor, color-mix(in srgb, currentColor 18%, transparent));
+  opacity: 0.48;
+}
+
+.schematic-callout[data-side='right'] .schematic-callout__leader {
+  background: linear-gradient(90deg, color-mix(in srgb, currentColor 18%, transparent), currentColor);
+}
+
+.schematic-callout__label {
+  font-family: var(--font-mono);
+  font-size: 6px;
+  letter-spacing: 0.13em;
+  opacity: 0.72;
+}
+
+.sources-drawer {
+  position: fixed;
+  z-index: 85;
+  right: 22px;
+  bottom: 20px;
+  font-family: var(--font-mono);
+}
+
+.sources-drawer__trigger,
+.sources-drawer__header button {
+  border: 1px solid var(--border-accent);
+  border-radius: 3px;
+  background: rgba(5, 9, 14, 0.76);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.sources-drawer__trigger {
+  padding: 8px 11px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+}
+
+.sources-drawer__trigger span {
+  margin-left: 7px;
+  color: var(--accent);
+}
+
+.sources-drawer__panel {
+  position: absolute;
+  right: 0;
+  bottom: 42px;
+  width: min(430px, calc(100vw - 44px));
+  max-height: min(610px, calc(100vh - 118px));
+  overflow-y: auto;
+  padding: 22px;
+  border: 1px solid var(--border-accent);
+  border-radius: 9px;
+  background: linear-gradient(145deg, rgba(12, 21, 29, 0.94), rgba(4, 7, 11, 0.91));
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.46);
+  backdrop-filter: blur(22px) saturate(126%);
+  -webkit-backdrop-filter: blur(22px) saturate(126%);
+}
+
+.sources-drawer__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  color: var(--accent);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+}
+
+.sources-drawer__header button {
+  padding: 5px 7px;
+}
+
+.sources-drawer__panel > p {
+  margin-bottom: 18px;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.sources-drawer__panel ol {
+  display: grid;
+  gap: 0;
+  list-style: none;
+}
+
+.sources-drawer__panel li {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 8px;
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+  font-size: 8px;
+  line-height: 1.5;
+  letter-spacing: 0.1em;
+}
+
+.sources-drawer__panel li > span {
+  color: var(--text-muted);
+}
+
+.sources-drawer__panel a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.sources-drawer__panel a:hover,
+.sources-drawer__panel a:focus-visible {
+  color: var(--accent);
+}
+
+.sources-drawer__panel small {
+  display: block;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 7px;
+  line-height: 1.6;
+  letter-spacing: 0.08em;
 }
 
 .milestone-glass-section {
@@ -514,9 +825,243 @@ a, button, [role="button"] { cursor: none; }
 }
 
 @media (max-width: 700px) {
+  #intro {
+    min-height: 100vh;
+    height: auto;
+    padding: 84px 0 74px;
+    overflow: visible;
+  }
+
   .hero-glass-panel {
     width: calc(100vw - 28px);
     padding: 34px 20px 38px;
     border-radius: 12px;
   }
+
+  .hero-title {
+    font-size: clamp(38px, 12vw, 58px);
+  }
+
+  .hero-stat-strip {
+    gap: 20px 28px !important;
+    flex-wrap: wrap;
+  }
+
+  .hero-stat-strip > div {
+    flex: 1 1 112px;
+  }
+
+  .era-progress {
+    display: none;
+  }
+
+  .pursuit-flight {
+    display: none;
+  }
+
+  .era-layout {
+    grid-template-columns: 1fr !important;
+    min-height: auto !important;
+  }
+
+  .era-copy {
+    order: 1;
+    padding: 80px 24px 38px !important;
+  }
+
+  .era-aircraft-panel {
+    order: 2;
+    min-height: 390px;
+    padding: 28px 24px 64px !important;
+  }
+
+  .timeline-spine {
+    padding: 28px 18px 42px !important;
+  }
+
+  .timeline-spine__inner {
+    padding-right: 0 !important;
+  }
+
+  .timeline-spine__track,
+  .timeline-spine__fill,
+  .milestone-node {
+    display: none;
+  }
+
+  .milestone-row {
+    min-height: 0 !important;
+    padding-left: 0 !important;
+    padding-bottom: 28px !important;
+  }
+
+  .milestone-year {
+    position: static !important;
+    width: auto !important;
+    margin-bottom: 12px;
+    text-align: left !important;
+  }
+
+  .milestone-card-header {
+    gap: 10px;
+    flex-direction: column;
+  }
+
+  .milestone-card-header span {
+    margin-left: 0 !important;
+  }
+
+  .schematic-callout__label {
+    font-size: 5.5px;
+  }
+
+  .sources-drawer {
+    right: 12px;
+    bottom: 12px;
+  }
+
+  .sources-drawer__panel {
+    width: calc(100vw - 24px);
+    max-height: calc(100vh - 90px);
+  }
 }
+
+/* Original Aero refinement: a clearer view over the ocean. */
+:root{--text-secondary:#acb9c9;--text-muted:#8b9caf;--border:rgba(194,216,235,.13)}
+html{scroll-padding-top:0;scroll-behavior:smooth}body{position:relative;cursor:auto}
+a,button,[role=button]{cursor:pointer}button,a,select{touch-action:manipulation}
+:where(a,button,select,input,summary):focus-visible{outline:2px solid var(--accent);outline-offset:5px}
+#intro.intro-section{min-height:max(740px,100svh);padding:106px clamp(24px,7vw,110px) 28px;display:flex;flex-direction:column;isolation:isolate}
+.intro-section:before{content:'';position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse at 50% 35%,rgba(4,12,20,.48),rgba(4,10,16,.05) 65%),linear-gradient(0deg,rgba(4,10,16,.5),transparent 30%);pointer-events:none}
+.intro-registration,.intro-footer{display:flex;justify-content:space-between;gap:20px;font:12px/1.6 var(--font-mono);letter-spacing:.12em;color:var(--text-secondary)}
+.intro-registration{padding-bottom:20px;border-bottom:1px solid var(--border)}
+.intro-content{text-align:center;padding:56px 0 44px;flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center}
+.intro-eyebrow{font:12px/1.5 var(--font-mono);letter-spacing:.18em;color:var(--accent);display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.intro-eyebrow>span{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 15px var(--accent)}
+.intro-content .hero-title{font-size:clamp(52px,7.4vw,112px);line-height:1.01;letter-spacing:-.055em;margin-bottom:26px}
+.intro-outline{color:color-mix(in srgb,var(--accent) 12%,transparent);-webkit-text-stroke:1px color-mix(in srgb,var(--accent) 85%,white 15%);text-shadow:0 0 36px color-mix(in srgb,var(--accent) 12%,transparent)}
+.intro-description{max-width:610px;font-size:17px;line-height:1.8;color:#c0ccda}
+.intro-actions{display:flex;justify-content:center;gap:14px;margin-top:30px;flex-wrap:wrap}
+.aero-button{font:14px/1.4 var(--font-mono);padding:15px 20px;display:inline-flex;align-items:center;justify-content:space-between;gap:30px;min-height:48px;border:1px solid var(--border-accent);border-radius:4px;text-decoration:none;color:var(--accent);background:rgba(5,12,19,.6);transition:background .2s,border-color .2s,box-shadow .2s}
+.aero-button--primary{background:color-mix(in srgb,var(--accent) 12%,rgba(5,12,19,.8));border-color:var(--accent)}
+.aero-button:hover{background:color-mix(in srgb,var(--accent) 20%,#071019);box-shadow:0 0 22px color-mix(in srgb,var(--accent) 9%,transparent)}
+.aero-button--quiet{color:var(--text-secondary);border-color:var(--border)}
+.intro-facts{display:grid;grid-template-columns:repeat(4,1fr);max-width:920px;width:100%;margin:0 auto 30px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:23px 0;background:rgba(5,12,18,.28)}
+.intro-facts>div{display:flex;flex-direction:column-reverse;align-items:center;gap:6px;border-right:1px solid var(--border)}.intro-facts>div:last-child{border:0}
+.intro-facts dt{font:12px/1.5 var(--font-mono);color:var(--text-secondary)}.intro-facts dd{font:500 28px/1.2 var(--font-display);color:var(--text-primary)}
+.intro-footer{font-size:12px;letter-spacing:.04em}.intro-footer a{color:var(--accent);text-decoration:none}.intro-footer a span{margin-left:14px}
+@media(max-width:700px){#intro.intro-section{padding:90px 22px 24px;min-height:100svh}.intro-registration{font-size:11px;letter-spacing:.04em;gap:12px}.intro-content{padding:42px 0 36px}.intro-content .hero-title{font-size:clamp(43px,10vw,67px)}.intro-description{font-size:16px;line-height:1.7}.intro-eyebrow{font-size:11px;letter-spacing:.07em}.intro-actions{width:100%;gap:10px}.aero-button{font-size:13px;gap:16px}.intro-facts{grid-template-columns:repeat(2,1fr);gap:24px 0;margin-bottom:24px}.intro-facts>div:nth-child(2){border:0}.intro-facts dt{font-size:12px}.intro-footer{font-size:10px;gap:10px}.intro-footer>span{max-width:160px}.intro-footer a{white-space:nowrap}}
+
+/* Navigation and reading surfaces */
+.skip-link{position:fixed;top:10px;left:20px;z-index:1000;padding:12px 18px;color:#07121b;background:#d4eafa;transform:translateY(-150%)}.skip-link:focus{transform:none}
+.aero-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(5,10,15,.9);backdrop-filter:blur(18px);border-bottom:1px solid var(--border)}
+.aero-nav__inner{max-width:1440px;margin:auto;height:70px;padding:0 clamp(24px,5vw,70px);display:flex;align-items:center;justify-content:space-between;gap:24px}
+.aero-wordmark{display:flex;align-items:center;gap:12px;color:var(--accent);text-decoration:none}.aero-wordmark strong{font:600 17px var(--font-display);letter-spacing:.22em;color:var(--text-primary)}.aero-wordmark>span{font:12px var(--font-mono);color:var(--text-muted);letter-spacing:.04em;padding-left:20px;border-left:1px solid var(--border);margin-left:8px}
+.aero-nav__links{display:flex;align-items:center;gap:26px}.aero-nav__links>a,.aero-nav__links>button{font:14px/1.4 var(--font-body);color:var(--text-secondary);text-decoration:none;border:0;background:none;padding:12px 0}.aero-nav__links>a:hover,.aero-nav__links>button:hover{color:var(--text-primary)}
+.aero-nav__links>.hud-trigger{padding:9px 13px;border:1px solid var(--border-accent);border-radius:4px;font:12px/1.5 var(--font-mono);display:flex;gap:10px;align-items:center;color:var(--accent)}.hud-status{width:5px;height:5px;border-radius:50%;background:var(--accent)}.hud-trigger[aria-expanded=true]{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.nav-scroll-track{position:absolute;bottom:-1px;height:1px;left:0;right:0;overflow:hidden}.nav-scroll-track>span{display:block;background:var(--accent);width:100%;height:100%;transform-origin:left}
+.chapter-nav{position:fixed;right:24px;top:50%;transform:translateY(-50%);width:128px;z-index:40;transition:opacity .3s}.chapter-nav--intro{opacity:0;visibility:hidden;pointer-events:none}.chapter-nav__title{display:block;font:12px/1.4 var(--font-mono);letter-spacing:.13em;color:var(--text-muted);padding:0 8px 20px}.chapter-nav ol{list-style:none;margin:0;padding:0;border-right:1px solid var(--border)}.chapter-nav a{display:flex;gap:9px;align-items:center;text-decoration:none;color:var(--text-muted);padding:13px 8px;position:relative;font:12px/1.4 var(--font-mono);transition:color .25s,background .25s}.chapter-nav a:hover,.chapter-nav a[aria-current]{color:var(--accent);background:rgba(7,18,28,.65)}.chapter-nav__index{font-size:11px;opacity:.8}.chapter-nav__name{flex:1}.chapter-nav__name small{display:block;font-size:11px;color:var(--text-muted);margin-top:3px}.chapter-nav__dot{width:5px;height:5px;border:1px solid currentColor;border-radius:50%;position:absolute;right:-3px;top:50%;background:var(--bg)}.chapter-nav a[aria-current] .chapter-nav__dot{background:var(--accent);box-shadow:0 0 12px var(--accent)}
+.historical-record{position:relative;padding-right:170px}.era-chapter{padding:62px 0 40px;max-width:1220px;margin:0 auto;border-top:1px solid var(--border);scroll-margin-top:90px}.era-chapter__header,.era-study,.chapter-end{margin-left:clamp(24px,4vw,66px);margin-right:clamp(24px,4vw,66px)}
+.chapter-kicker{font:12px/1.5 var(--font-mono);color:var(--chapter-accent);letter-spacing:.13em;display:flex;justify-content:space-between;gap:20px;border-bottom:1px solid var(--border);padding-bottom:19px;margin-bottom:25px}.technical-label{font:12px/1.6 var(--font-mono);letter-spacing:.07em;color:var(--text-muted)}
+.chapter-heading{display:grid;grid-template-columns:1.2fr 1fr;gap:38px;align-items:end;margin-bottom:36px}.chapter-heading h2{font-family:var(--font-display);font-size:clamp(27px,2.5vw,40px);font-weight:500;line-height:1.15;letter-spacing:-.04em;max-width:560px;margin-top:13px}.chapter-heading>p{font-size:16px;line-height:1.8;color:var(--text-secondary);max-width:490px}
+.era-study{display:grid;grid-template-columns:1.1fr 1fr;align-items:start;gap:32px;position:relative}.aircraft-study{position:sticky;top:96px;border:1px solid color-mix(in srgb,var(--chapter-accent) 25%,transparent);border-radius:9px;background:linear-gradient(145deg,rgba(13,27,39,.79),rgba(6,15,24,.65));backdrop-filter:blur(9px);overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.12)}
+.aircraft-study__header,.aircraft-study__footer{display:flex;justify-content:space-between;gap:15px;align-items:center;padding:16px 20px;font:12px/1.5 var(--font-mono);letter-spacing:.06em;color:var(--chapter-accent)}.aircraft-study__header{border-bottom:1px solid var(--border)}.aircraft-study__footer{font-size:11px;color:var(--text-muted);border-top:1px solid var(--border);padding:12px 18px}
+.aircraft-study__drawing{height:clamp(300px,29vw,440px);position:relative;padding:24px;background-image:linear-gradient(color-mix(in srgb,var(--chapter-accent) 5%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--chapter-accent) 5%,transparent) 1px,transparent 1px);background-size:40px 40px;isolation:isolate}
+.aircraft-study__drawing:before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse,color-mix(in srgb,var(--chapter-accent) 6%,transparent),transparent 70%)}
+.aircraft-study .era-aircraft-schematic{position:relative;height:100%;width:100%;margin:0;aspect-ratio:auto;color:var(--chapter-accent)}.aircraft-study .era-aircraft-schematic svg{overflow:visible}.era-aircraft-schematic svg>*{transition:opacity .3s,filter .3s,stroke-width .3s}.era-aircraft-schematic.is-inspecting svg>*{opacity:.23!important}.era-aircraft-schematic[data-inspection=airframe] [data-part=airframe],.era-aircraft-schematic[data-inspection=wing] [data-part=wing],.era-aircraft-schematic[data-inspection=engines] [data-part=engines],.era-aircraft-schematic[data-inspection=cockpit] [data-part=cockpit],.era-aircraft-schematic[data-inspection=exhaust] [data-part=exhaust],.era-aircraft-schematic[data-inspection=payload] [data-part=payload]{opacity:1!important;stroke-width:1.7;filter:drop-shadow(0 0 3px var(--chapter-accent))}
+.inspection-point{position:absolute;transform:translate(-50%,-50%);z-index:3;width:34px;height:34px;border-radius:50%;background:#0c1925;border:1px solid var(--chapter-accent);color:var(--chapter-accent);font:12px var(--font-mono);box-shadow:0 0 0 5px color-mix(in srgb,var(--chapter-accent) 7%,transparent);transition:box-shadow .2s,background .2s,color .2s}.inspection-point:hover,.inspection-point.is-selected{background:var(--chapter-accent);color:#071019;box-shadow:0 0 0 9px color-mix(in srgb,var(--chapter-accent) 10%,transparent)}
+.inspection-controls{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--border)}.inspection-controls button{display:flex;align-items:center;gap:9px;min-height:62px;padding:13px 16px;text-align:left;font:14px/1.5 var(--font-body);color:var(--text-secondary);background:none;border:0;border-bottom:1px solid var(--border)}.inspection-controls button:first-child{border-right:1px solid var(--border)}.inspection-controls button>span:first-child{font:12px var(--font-mono);color:var(--chapter-accent)}.inspection-controls button>span:last-child{margin-left:auto;color:var(--chapter-accent);font-size:19px}.inspection-controls button:hover,.inspection-controls button[aria-pressed=true]{background:color-mix(in srgb,var(--chapter-accent) 10%,transparent);color:var(--text-primary)}
+.inspection-note{padding:19px 20px;min-height:174px}.inspection-note strong{font:500 15px/1.4 var(--font-body);color:var(--chapter-accent)}.inspection-note p{font-size:14px;line-height:1.7;color:var(--text-secondary);margin-top:8px}.inspection-note a{font:12px/1.5 var(--font-mono);color:var(--chapter-accent);display:inline-block;margin-top:10px;text-decoration:none}.inspection-note a:hover{text-decoration:underline}
+.chapter-records__label{display:flex;justify-content:space-between;gap:14px;font:12px/1.5 var(--font-mono);color:var(--text-muted);padding:17px 0;border-bottom:1px solid var(--border);margin-bottom:18px}
+.record-card{position:relative;padding:25px 24px 22px;background:rgba(7,16,25,.7);backdrop-filter:blur(8px);border:1px solid var(--border);border-left:2px solid var(--border);border-radius:6px;margin-bottom:20px;transition:border-color .3s,background .3s;scroll-margin-top:125px}.record-card.is-current{border-left-color:var(--chapter-accent);background:rgba(12,25,37,.87)}
+.record-card__meta{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:15px}.record-card__year{font:500 29px/1 var(--font-display);color:var(--text-secondary);letter-spacing:-.035em;transition:color .3s}.is-current .record-card__year{color:var(--chapter-accent)}.record-card__category{font:12px/1.5 var(--font-mono);color:var(--record-color);letter-spacing:.04em}.record-card h3{font:500 21px/1.3 var(--font-display);letter-spacing:-.02em;margin-bottom:12px}.record-card>p{font:400 16px/1.8 var(--font-body);color:#b7c4d3}.record-disclosure{font:13px/1.5 var(--font-mono);display:flex;align-items:center;gap:24px;padding:16px 0 0;background:none;border:0;color:var(--chapter-accent);min-height:44px}.record-disclosure>span{font-size:19px}.record-disclosure:hover{text-decoration:underline;text-underline-offset:4px}.record-card__detail{border-top:1px solid var(--border);margin-top:17px;padding-top:16px}.record-card__detail p{font-size:15px;line-height:1.8;color:var(--text-secondary)}.record-card__detail a{display:inline-block;font:12px/1.5 var(--font-mono);color:var(--chapter-accent);text-decoration:none;margin-top:12px}.record-card__detail a:hover{text-decoration:underline}
+.chapter-end{display:flex;justify-content:space-between;align-items:center;gap:25px;margin-top:30px;padding-top:25px;border-top:1px solid var(--border);font:12px/1.5 var(--font-mono);color:var(--text-muted)}.chapter-end a{font-size:14px;color:var(--chapter-accent);text-decoration:none}.chapter-end a span{margin-left:20px}.chapter-end a:hover{text-decoration:underline}
+.aero-footer{padding:45px clamp(24px,4vw,66px) 60px;max-width:1220px;margin:auto;display:flex;align-items:center;gap:30px;border-top:1px solid var(--border)}.aero-footer>a{font:12px/1.5 var(--font-mono);color:var(--accent);text-decoration:none;white-space:nowrap}.aero-footer>a:first-child{font-size:17px;letter-spacing:.15em}.aero-footer p{font-size:13px;color:var(--text-muted);flex:1;line-height:1.7}
+/* One accessible control surface replaces the overlapping HUD panels. */
+.display-dialog{color:var(--text-primary);width:min(490px,calc(100% - 32px));max-height:calc(100svh - 48px);padding:0;margin:auto 24px auto auto;background:linear-gradient(145deg,#10212ff7,#060d15fa);border:1px solid var(--border-accent);border-radius:12px;box-shadow:0 30px 120px #0009;overflow-y:auto;animation:dialog-arrive .2s ease-out}
+.display-dialog::backdrop{background:rgba(2,7,12,.66);backdrop-filter:blur(5px)}.display-dialog__inner{padding:27px}.display-dialog__inner>header{display:flex;gap:20px;align-items:start;justify-content:space-between}.display-dialog h2{font:500 26px/1.2 var(--font-display);letter-spacing:-.035em;margin-top:10px}.dialog-close{flex-shrink:0;width:44px;height:44px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:4px;color:var(--text-secondary);font-size:27px}.dialog-close:hover{border-color:var(--accent);color:var(--accent)}.dialog-intro{font-size:16px;line-height:1.7;color:var(--text-secondary);margin:19px 0 25px}.theme-fieldset{border:0;padding:0;margin:0 0 25px}.theme-fieldset legend{font:500 15px var(--font-body);margin-bottom:14px}.theme-options{display:grid;grid-template-columns:1fr 1fr;gap:9px}.theme-options label{position:relative;cursor:pointer}.theme-options input{position:absolute;opacity:0;width:1px;height:1px}.theme-chip{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--border);border-radius:5px;font-size:14px;background:rgba(0,0,0,.12);color:var(--text-secondary)}.theme-chip i{width:9px;height:9px;border-radius:50%;background:var(--swatch)}.theme-check{margin-left:auto;opacity:0;color:var(--swatch)}.theme-options input:checked+.theme-chip{border-color:var(--swatch);color:var(--text-primary);background:color-mix(in srgb,var(--swatch) 9%,transparent)}.theme-options input:checked+.theme-chip .theme-check{opacity:1}.theme-options input:focus-visible+.theme-chip{outline:2px solid var(--accent);outline-offset:3px}
+.display-preferences{border-top:1px solid var(--border)}.display-preference{position:relative;display:flex;align-items:center;gap:18px;justify-content:space-between;cursor:pointer;padding:18px 0;border-bottom:1px solid var(--border)}.display-preference strong{font:500 15px/1.4 var(--font-body);display:block}.display-preference small{font:13px/1.6 var(--font-body);color:var(--text-muted);display:block;margin-top:4px}.display-preference input{position:absolute;opacity:0;width:1px;height:1px;right:0}.display-switch{flex-shrink:0;width:38px;height:22px;border:1px solid #788a9c;border-radius:12px;position:relative;background:#152331;transition:background .2s}.display-switch:after{content:'';position:absolute;left:3px;top:3px;width:14px;height:14px;border-radius:50%;background:#9fadb9;transition:transform .2s}.display-preference input:checked+.display-switch{background:var(--accent);border-color:var(--accent)}.display-preference input:checked+.display-switch:after{transform:translateX(16px);background:#06121e}.display-preference input:focus-visible+.display-switch{outline:2px solid var(--accent);outline-offset:4px}.display-preference.is-disabled{opacity:.65;cursor:default}.hud-reading{padding:22px 0}.hud-reading>div{display:flex;justify-content:space-between;align-items:center}.hud-reading strong{font:500 23px var(--font-display);color:var(--accent)}.hud-reading progress{width:100%;height:4px;display:block;margin:14px 0 10px;accent-color:var(--accent);border:0;background:#20303e}.hud-reading progress::-webkit-progress-bar{background:#20303e}.hud-reading progress::-webkit-progress-value{background:var(--accent)}.hud-reading>span{font:12px var(--font-mono);color:var(--text-secondary)}.hud-done{width:100%}
+.reference-list{list-style:none;padding:0}.reference-list li{display:flex;gap:14px;border-top:1px solid var(--border);padding:17px 0;align-items:start}.reference-list li>span{font:12px/1.7 var(--font-mono);color:var(--text-muted)}.reference-list a{font:13px/1.7 var(--font-mono);color:var(--text-secondary);text-decoration:none;flex:1}.reference-list a:hover{color:var(--accent)}.reference-list a>span{color:var(--accent);white-space:nowrap}.reference-note{font-size:13px;line-height:1.8;color:var(--text-muted);border-top:1px solid var(--border);padding-top:20px;margin-top:5px}
+html[data-cursor=reticle] body,html[data-cursor=reticle] :is(a,button){cursor:none}.cursor-reticle-layer{pointer-events:none}.pursuit-flight{transition:opacity .6s}.pursuit-trail{opacity:.6}
+html[data-motion=reduced]{scroll-behavior:auto}html[data-motion=reduced] *,html[data-motion=reduced] *:before,html[data-motion=reduced] *:after{animation:none!important;transition-duration:0s!important;scroll-behavior:auto!important}
+@keyframes dialog-arrive{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
+@media(max-width:1200px){.historical-record{padding-right:145px}.chapter-nav{width:117px;right:15px}.era-chapter__header,.era-study,.chapter-end{margin-left:28px;margin-right:28px}.era-study{gap:23px;grid-template-columns:1fr 1fr}.chapter-heading{gap:26px}.chapter-heading h2{font-size:30px}.record-card{padding:21px 18px}.inspection-controls{grid-template-columns:1fr}.inspection-controls button{min-height:45px;padding:9px 15px}.inspection-controls button:first-child{border-right:0}.aircraft-study__header{padding:14px 15px;font-size:11px}.inspection-note{padding:16px;min-height:180px}.aircraft-study__drawing{height:310px;padding:20px}}
+@media(min-width:1001px) and (max-height:850px){.aircraft-study__drawing{height:clamp(200px,32vh,310px)}.aircraft-study{top:88px}.inspection-note{min-height:155px;padding:13px 16px}.inspection-note p{font-size:14px;line-height:1.6}.aircraft-study__footer{font-size:10px;padding:10px 16px}.inspection-controls button{min-height:44px;padding:8px 12px;font-size:13px}}
+@media(max-width:1000px){.historical-record{padding-right:0}.chapter-nav{top:70px;right:0;left:0;width:100%;transform:none;padding:0 20px;background:rgba(5,12,19,.96);border-bottom:1px solid var(--border);backdrop-filter:blur(15px)}.chapter-nav__title{display:none}.chapter-nav ol{display:flex;border:0;justify-content:center;gap:12px;overflow-x:auto}.chapter-nav li{flex-shrink:0}.chapter-nav a{padding:14px 6px;gap:7px}.chapter-nav__name small,.chapter-nav__dot{display:none}.chapter-nav a[aria-current]{background:none;box-shadow:inset 0 -2px var(--accent)}.chapter-nav__index{font-size:10px}.chapter-nav__name{font-size:12px}.era-chapter{scroll-margin-top:137px}.aircraft-study{top:138px}.aero-wordmark>span{display:none}.chapter-heading{grid-template-columns:1fr 1fr}.era-study{gap:25px}.era-chapter__header,.era-study,.chapter-end{margin-left:32px;margin-right:32px}.record-card h3{font-size:20px}.chapter-records__label{font-size:11px}.inspection-note{min-height:200px}}
+@media(max-width:760px){html{scroll-padding-top:0}.aero-nav__inner{height:64px;padding:0 20px;gap:15px}.aero-nav__links{gap:14px}.aero-nav__links>a{display:none}.aero-nav__links>button{font-size:13px}.aero-wordmark{gap:9px}.aero-wordmark strong{font-size:16px}.aero-nav__links>.hud-trigger{font-size:12px;padding:8px 10px}.chapter-nav{top:64px;padding:0 10px}.chapter-nav ol{justify-content:space-between;gap:8px}.chapter-nav a{padding:14px 4px;gap:5px}.chapter-nav__index{display:none}.chapter-nav__name{font-size:11px}.era-chapter{padding-top:36px;padding-bottom:28px;scroll-margin-top:123px}.era-chapter__header,.era-study,.chapter-end{margin-left:22px;margin-right:22px}.chapter-kicker{font-size:11px;letter-spacing:.035em;gap:12px;margin-bottom:24px}.chapter-heading{grid-template-columns:1fr;gap:18px;margin-bottom:25px}.chapter-heading h2{font-size:30px;max-width:480px}.chapter-heading>p{font-size:16px;max-width:none;line-height:1.75}.era-study{grid-template-columns:1fr;gap:30px}.aircraft-study{position:relative;top:auto}.aircraft-study__drawing{height:340px;padding:28px 24px}.aircraft-study__header{font-size:12px}.inspection-controls{grid-template-columns:1fr 1fr}.inspection-controls button{font-size:13px;padding:12px;min-height:66px;gap:7px}.inspection-controls button:first-child{border-right:1px solid var(--border)}.inspection-note{min-height:166px;padding:18px}.inspection-note p{font-size:15px}.inspection-point{width:44px;height:44px}.aircraft-study__footer{font-size:10px;padding:13px 18px}.chapter-records__label{font-size:11px;padding-top:0}.record-card{padding:24px 21px;margin-bottom:16px}.record-card h3{font-size:22px}.record-card__category{font-size:11px}.record-card__detail p{font-size:16px}.record-disclosure{font-size:13px}.chapter-end{margin-top:15px;padding-top:23px;gap:20px;align-items:start}.chapter-end>span{font-size:10px;max-width:120px}.chapter-end a{font-size:12px;line-height:1.7;text-align:right}.chapter-end a>span{margin-left:10px}.aero-footer{padding:30px 22px 45px;display:grid;grid-template-columns:1fr 1fr;gap:20px}.aero-footer p{grid-row:2;grid-column:1/-1}.aero-footer>a:last-child{justify-self:end;font-size:11px}.display-dialog{margin:auto;width:calc(100% - 28px);max-height:calc(100svh - 28px)}.display-dialog__inner{padding:22px}.display-dialog h2{font-size:25px}.technical-label{font-size:11px;letter-spacing:.04em}.theme-chip{font-size:14px}.reference-list a{font-size:12px}}
+@media(max-height:650px) and (min-width:761px){.aircraft-study{position:relative;top:auto}}
+@media(pointer:coarse){.cursor-reticle-layer{display:none}html[data-cursor=reticle] body,html[data-cursor=reticle] :is(a,button){cursor:auto}}
+
+.ambient-background[data-enabled=false] *{animation-play-state:paused!important}
+
+/* Keep inspection markers registered to each aircraft's own drawing coordinates. */
+.aircraft-study__drawing{display:grid;place-items:center;container-type:size}
+.aircraft-study__plate{position:relative;width:min(100cqw,calc(100cqh * var(--aircraft-ratio)));aspect-ratio:var(--aircraft-ratio)}
+.aircraft-study__plate .era-aircraft-schematic{position:absolute;inset:0}
+.aircraft-reference{display:block;padding:0 18px 14px;font:10px/1.6 var(--font-mono);color:var(--text-secondary);text-decoration:none}
+.aircraft-reference:hover{color:var(--chapter-accent);text-decoration:underline}
+.intro-content .hero-engineering{-webkit-text-stroke-color:color-mix(in srgb,var(--accent) 75%,white 15%)}
+
+/* Restore the original chapter rhythm: an open introduction, then the record. */
+.historical-record--open{padding-right:0}
+.era-chapter--open{max-width:none;padding:0 0 54px}
+.chapter-opening{max-width:1280px;margin:0 auto;min-height:88svh;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:76px 72px;gap:60px}
+.chapter-opening__copy{max-width:450px}
+.chapter-opening__index{font:11px/1.5 var(--font-mono);letter-spacing:.2em;color:var(--chapter-accent);margin-bottom:24px;display:flex;align-items:center;gap:14px}
+.chapter-opening__index:before{content:'';width:26px;height:1px;background:var(--chapter-accent)}
+.chapter-opening__dates{font:600 clamp(42px,4.8vw,66px)/1.04 var(--font-display);letter-spacing:-.055em;color:var(--chapter-accent);margin-bottom:22px}
+.chapter-opening__copy>.technical-label{display:block;margin-bottom:28px;letter-spacing:.16em}
+.chapter-opening__copy h2{font:500 clamp(24px,2.25vw,30px)/1.25 var(--font-display);letter-spacing:-.025em;margin-bottom:20px}
+.chapter-opening__copy>p{font-size:15px;line-height:1.9;color:var(--text-secondary);max-width:400px}
+.chapter-record-count{display:inline-flex;align-items:center;gap:22px;margin-top:30px;padding:9px 12px;border:1px solid var(--border-accent);border-radius:2px;color:var(--chapter-accent);font:10px/1.5 var(--font-mono);letter-spacing:.12em;text-decoration:none}
+.era-chapter--reverse .chapter-opening__copy{grid-column:2;grid-row:1}.era-chapter--reverse .aircraft-study{grid-column:1;grid-row:1}
+.chapter-opening .aircraft-study{position:relative;top:auto;align-self:center;width:100%;max-width:430px;justify-self:center;border:0;background:none;border-radius:0;box-shadow:none;backdrop-filter:none}
+.chapter-opening .aircraft-study__header{display:none}
+.chapter-opening .aircraft-study__drawing{height:clamp(320px,43vh,440px);padding:20px;background:none;border:0}
+.chapter-opening .inspection-controls{display:flex;justify-content:center;gap:16px;border:0;margin:16px 0 0}
+.chapter-opening .inspection-controls button{border:0!important;background:none;padding:8px 0;min-height:44px;font-size:11px;gap:7px;flex:0 1 auto;color:var(--text-muted)}
+.chapter-opening .inspection-controls button[aria-pressed=true]{color:var(--chapter-accent)}
+.chapter-opening .inspection-note{padding:12px 10px;min-height:0;background:none;border:0;text-align:center}
+.chapter-opening .inspection-note>.technical-label{display:none}
+.chapter-opening .inspection-note>p{font-size:12px;line-height:1.8;max-width:370px;margin:6px auto;color:var(--text-muted)}
+.chapter-opening .inspection-note>strong{font-size:14px}
+.chapter-opening .inspection-note>a{font-size:10px}
+.chapter-opening .aircraft-study__footer{padding:14px 10px 8px;font-size:9px;border:0;justify-content:center;gap:18px;color:var(--text-muted)}
+.chapter-opening .aircraft-reference{padding:0 10px;font-size:9px;text-align:center;opacity:.8}
+.chapter-opening .inspection-point{width:28px;height:28px;font-size:9px;opacity:.7;background:#08141ddd;box-shadow:none}
+.chapter-opening .inspection-point:hover,.chapter-opening .inspection-point.is-selected,.chapter-opening .inspection-point:focus-visible{opacity:1}
+.chapter-timeline-surface{padding:64px 24px 38px;background:linear-gradient(180deg,rgba(5,12,19,.34),rgba(5,12,19,.6) 50%,rgba(5,12,19,.25));border-top:1px solid var(--border)}
+.chapter-records--spine{max-width:840px;margin:0 auto;padding-left:136px;position:relative;scroll-margin-top:150px}
+.chapter-records--spine:before{content:'';position:absolute;left:108px;top:8px;bottom:36px;width:1px;background:linear-gradient(var(--chapter-accent),var(--border));opacity:.4}
+.chapter-records--spine .record-card{margin-bottom:36px;padding:22px 26px;border:1px solid var(--border);background:rgba(7,16,25,.25);backdrop-filter:blur(4px)}
+.chapter-records--spine .record-card.is-current{border-color:var(--border-accent);background:rgba(12,25,37,.5)}
+.chapter-records--spine .record-card:before{content:'';position:absolute;left:-33px;top:10px;width:9px;height:9px;border:1px solid var(--text-muted);background:#08131c;border-radius:50%}
+.chapter-records--spine .record-card.is-current:before{background:var(--chapter-accent);border-color:var(--chapter-accent);box-shadow:0 0 16px color-mix(in srgb,var(--chapter-accent) 40%,transparent)}
+.chapter-records--spine .record-card__year{position:absolute;left:-136px;top:0;width:94px;text-align:right;font-size:28px}
+.chapter-records--spine .record-card__meta{margin-bottom:12px;justify-content:flex-start}
+.chapter-records--spine .record-card__category{font-size:10px;letter-spacing:.12em}
+.chapter-records--spine .record-card h3{font-size:20px}
+.chapter-records--spine .record-card>p{font-size:15px;line-height:1.85}
+.era-chapter--open .chapter-end{max-width:840px;margin:32px auto 0;padding:24px 24px 0;border-top:0}
+@media(min-width:1001px){.chapter-nav{width:105px;right:14px}.chapter-nav__title{font-size:9px}.chapter-nav__name{font-size:10px}.chapter-nav__name small{font-size:8px}.chapter-nav__index{font-size:9px}.chapter-nav a{gap:7px}.chapter-opening{padding-right:130px}}
+@media(max-width:1000px){.chapter-opening{padding:86px 42px 64px;gap:34px;min-height:78svh}.chapter-opening__dates{font-size:44px}.chapter-opening .aircraft-study__drawing{height:330px}.chapter-opening .inspection-controls{gap:12px;flex-wrap:wrap}.chapter-opening .inspection-controls button{min-height:36px}.chapter-records--spine{max-width:780px;padding-right:20px}}
+@media(max-width:760px){.chapter-opening{grid-template-columns:1fr;min-height:0;padding:70px 28px 48px;gap:35px}.chapter-opening__copy{max-width:520px}.chapter-opening__dates{font-size:clamp(40px,9vw,60px)}.chapter-opening__copy>p{max-width:480px}.era-chapter--reverse .chapter-opening__copy,.era-chapter--reverse .aircraft-study{grid-column:auto;grid-row:auto}.chapter-opening .aircraft-study{max-width:430px}.chapter-opening .aircraft-study__drawing{height:330px}.chapter-opening .inspection-point{width:36px;height:36px}.chapter-opening .inspection-controls button{min-height:44px;font-size:12px}.chapter-timeline-surface{padding:42px 20px 20px}.chapter-records--spine{padding-left:32px;padding-right:0}.chapter-records--spine:before{left:8px;top:10px}.chapter-records--spine .record-card{padding:20px;margin-bottom:28px}.chapter-records--spine .record-card:before{left:-29px}.chapter-records--spine .record-card__year{position:static;width:auto;text-align:left;font-size:26px}.chapter-records--spine .record-card__meta{justify-content:space-between;gap:12px}.chapter-records--spine .record-card h3{font-size:20px}.chapter-records--spine .record-card>p{font-size:15px}.era-chapter--open .chapter-end{margin:10px 24px 0;padding:24px 0 0}.era-chapter--open{padding-bottom:35px}}
+
+/* Original timeline cards: compact glass, category chips, and a fine active edge. */
+.chapter-records--spine .record-card--original{padding:0;border:0;background:none;backdrop-filter:none;border-radius:6px}
+.chapter-records--spine .record-card--original.is-current{border:0;background:none}
+.record-card--original .record-card__surface{position:relative;border:1px solid var(--border);border-radius:6px;padding:18px 22px;background:transparent;opacity:.45;transition:opacity .4s,border-color .4s,background .4s;overflow:hidden}
+.record-card--original.is-current .record-card__surface,.record-card--original:focus-within .record-card__surface,.record-card--original:hover .record-card__surface{opacity:1}
+.record-card--original.is-current .record-card__surface{border-color:color-mix(in srgb,var(--record-color) 32%,transparent);background:var(--record-bg)}
+.record-card--original .record-card__surface:before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--record-color),transparent);transform:scaleX(0);transform-origin:left;opacity:0;transition:transform .4s,opacity .4s}
+.record-card--original.is-current .record-card__surface:before{transform:scaleX(1);opacity:1}
+.record-card__original-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+.chapter-records--spine .record-card--original h3{font-size:17px;font-weight:600;line-height:1.3;margin:0}
+.chapter-records--spine .record-card--original .record-card__category{font:9px/1.5 var(--font-mono);letter-spacing:.12em;padding:3px 9px;border:1px solid color-mix(in srgb,var(--record-color) 33%,transparent);border-radius:2px;background:var(--record-bg);white-space:nowrap;flex-shrink:0}
+.record-card__surface>p{font-size:13px;line-height:1.8;color:var(--text-secondary)}
+.record-card--original .record-disclosure{font-size:10px;letter-spacing:.06em;gap:10px;color:var(--record-color);padding:8px 0 0;min-height:32px}
+.record-card--original .record-disclosure>span{font-size:11px}
+.record-card--original .record-card__detail{margin-top:10px;padding-top:14px;border-color:color-mix(in srgb,var(--record-color) 14%,transparent)}
+.record-card--original .record-card__detail p{font-size:12px;line-height:1.75;color:var(--text-secondary)}
+.record-card--original .record-card__detail a{font-size:10px;color:var(--record-color)}
+@media(max-width:760px){.record-card--original .record-card__surface{padding:18px}.record-card--original .record-card__year{display:block;margin-bottom:14px}.record-card__original-header{flex-direction:column;gap:9px}.record-card__surface>p{font-size:14px}.record-card--original .record-card__detail p{font-size:13px}.record-card--original .record-disclosure{min-height:44px}.record-card--original .record-card__surface{opacity:.7}}

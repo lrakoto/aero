@@ -1,9 +1,9 @@
-import { motion, useInView } from 'framer-motion'
+import { motion as Motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 
 function NodeLine({ from, to, delay = 0 }) {
   return (
-    <motion.line
+    <Motion.line
       x1={from[0]} y1={from[1]}
       x2={to[0]} y2={to[1]}
       stroke="rgba(99,179,237,0.2)"
@@ -43,7 +43,7 @@ function AbstractDiagram() {
           />
         ))}
         {nodes.map((n, i) => (
-          <motion.circle
+          <Motion.circle
             key={i}
             cx={n.x} cy={n.y} r="5"
             fill="none"
@@ -58,7 +58,7 @@ function AbstractDiagram() {
         ))}
       </svg>
       {nodes.map((n, i) => (
-        <motion.div
+        <Motion.div
           key={i}
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -78,7 +78,7 @@ function AbstractDiagram() {
           }}
         >
           {n.label}
-        </motion.div>
+        </Motion.div>
       ))}
     </div>
   )
@@ -116,7 +116,7 @@ export default function Future() {
 
           {/* Left: text */}
           <div>
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={inView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.6 }}
@@ -131,9 +131,9 @@ export default function Future() {
             >
               <span style={{ width: '30px', height: '1px', background: 'var(--accent)' }} />
               04 // FUTURE
-            </motion.div>
+            </Motion.div>
 
-            <motion.h2
+            <Motion.h2
               initial={{ opacity: 0, x: -20 }}
               animate={inView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.7, delay: 0.1 }}
@@ -149,9 +149,9 @@ export default function Future() {
             >
               Beyond the<br />
               <span style={{ color: 'var(--accent)' }}>pilot.</span>
-            </motion.h2>
+            </Motion.h2>
 
-            <motion.p
+            <Motion.p
               initial={{ opacity: 0, x: -20 }}
               animate={inView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.7, delay: 0.2 }}
@@ -166,10 +166,10 @@ export default function Future() {
               Autonomous systems don&apos;t replace pilots — they extend human
               capability beyond biological limits. AI-assisted flight opens
               decision spaces no human reflex could navigate.
-            </motion.p>
+            </Motion.p>
 
             {/* Capability list */}
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0 }}
               animate={inView ? { opacity: 1 } : {}}
               transition={{ delay: 0.5 }}
@@ -181,7 +181,7 @@ export default function Future() {
                 'Predictive threat avoidance via ML inference',
                 'Real-time structural health monitoring',
               ].map((item, i) => (
-                <motion.div
+                <Motion.div
                   key={item}
                   initial={{ opacity: 0, x: -12 }}
                   animate={inView ? { opacity: 1, x: 0 } : {}}
@@ -204,23 +204,23 @@ export default function Future() {
                     boxShadow: '0 0 6px var(--accent)',
                   }} />
                   {item}
-                </motion.div>
+                </Motion.div>
               ))}
-            </motion.div>
+            </Motion.div>
           </div>
 
           {/* Right: node diagram */}
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={inView ? { opacity: 1, scale: 1 } : {}}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             <AbstractDiagram />
-          </motion.div>
+          </Motion.div>
         </div>
 
         {/* Bottom stamp */}
-        <motion.div
+        <Motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 1 }}
@@ -246,7 +246,7 @@ export default function Future() {
           }}>
             AERO SYSTEMS // CLASSIFIED PROTOTYPE // NOT FOR DISTRIBUTION
           </div>
-        </motion.div>
+        </Motion.div>
       </div>
     </section>
   )

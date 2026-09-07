@@ -22,6 +22,7 @@ uniform vec2 uTextureSize;
 uniform vec2 uPointer;
 uniform float uPointerActive;
 uniform float uTime;
+uniform float uEra;
 in vec2 vUv;
 out vec4 fragColor;
 
@@ -40,8 +41,9 @@ vec2 coverUv(vec2 uv) {
 void main() {
   vec2 uv = coverUv(vUv);
   float t = uTime;
-  float broad = sin(uv.x * 18.0 + uv.y * 11.0 + t * 0.46);
-  float crossing = sin(uv.x * -14.0 + uv.y * 23.0 - t * 0.34);
+  float currentShift = uEra * 0.72;
+  float broad = sin(uv.x * (18.0 + uEra) + uv.y * (11.0 - uEra * 0.55) + t * (0.42 + uEra * 0.025) + currentShift);
+  float crossing = sin(uv.x * (-14.0 + uEra * 0.8) + uv.y * (23.0 + uEra * 0.65) - t * (0.31 + uEra * 0.018));
   float fine = sin(uv.x * 51.0 - uv.y * 29.0 + t * 0.61);
   vec2 flow = vec2(
     sin(uv.y * 43.0 + t * 0.39 + broad * 0.7),
@@ -74,12 +76,17 @@ function compileShader(gl, type, source) {
   return shader
 }
 
-export default function OceanCanvas() {
+export default function OceanCanvas({ eraIndex = 0, enabled = true }) {
   const canvasRef = useRef(null)
+  const eraTargetRef = useRef(eraIndex)
+
+  useEffect(() => {
+    eraTargetRef.current = eraIndex
+  }, [eraIndex])
 
   useEffect(() => {
     const canvas = canvasRef.current
-    if (!canvas || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
+    if (!enabled || !canvas || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
 
     const gl = canvas.getContext('webgl2', {
       alpha: true,
@@ -106,6 +113,7 @@ export default function OceanCanvas() {
     const pointerLocation = gl.getUniformLocation(program, 'uPointer')
     const pointerActiveLocation = gl.getUniformLocation(program, 'uPointerActive')
     const timeLocation = gl.getUniformLocation(program, 'uTime')
+    const eraLocation = gl.getUniformLocation(program, 'uEra')
 
     let disposed = false
     let ready = false
@@ -114,10 +122,14 @@ export default function OceanCanvas() {
     let startTime = performance.now()
     const pointerTarget = { x: 0.5, y: 0.5, active: 0 }
     const pointer = { x: 0.5, y: 0.5, active: 0 }
+    let eraValue = eraTargetRef.current
+    const compactMode = window.matchMedia('(max-width: 800px)').matches
+      || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4)
+    const targetFps = compactMode ? 24 : 30
 
     const resize = () => {
       const rect = canvas.getBoundingClientRect()
-      const density = Math.min(window.devicePixelRatio || 1, 1)
+      const density = compactMode ? 0.72 : Math.min(window.devicePixelRatio || 1, 1)
       const width = Math.max(1, Math.round(rect.width * density))
       const height = Math.max(1, Math.round(rect.height * density))
       if (canvas.width !== width || canvas.height !== height) {
@@ -136,20 +148,21 @@ export default function OceanCanvas() {
 
     const render = (now) => {
       if (disposed || document.hidden) return
-      if (now - lastFrame < 1000 / 30) {
+      if (now - lastFrame < 1000 / targetFps) {
         rafId = requestAnimationFrame(render)
         return
       }
       lastFrame = now
-      resize()
       pointer.x += (pointerTarget.x - pointer.x) * 0.08
       pointer.y += (pointerTarget.y - pointer.y) * 0.08
       pointer.active += (pointerTarget.active - pointer.active) * 0.06
+      eraValue += (eraTargetRef.current - eraValue) * 0.025
       gl.useProgram(program)
       gl.uniform2f(resolutionLocation, canvas.width, canvas.height)
       gl.uniform2f(pointerLocation, pointer.x, pointer.y)
       gl.uniform1f(pointerActiveLocation, pointer.active)
       gl.uniform1f(timeLocation, (now - startTime) / 1000)
+      gl.uniform1f(eraLocation, eraValue)
       gl.drawArrays(gl.TRIANGLES, 0, 3)
       rafId = requestAnimationFrame(render)
     }
@@ -185,12 +198,16 @@ export default function OceanCanvas() {
     }
     image.src = `${import.meta.env.BASE_URL}assets/images/dark-ocean-aerial-v3.jpg`
 
+    const observer = new ResizeObserver(resize)
+    observer.observe(canvas)
     window.addEventListener('pointermove', onPointerMove, { passive: true })
     document.documentElement.addEventListener('mouseleave', onPointerLeave)
     document.addEventListener('visibilitychange', onVisibilityChange)
 
     return () => {
       disposed = true
+      observer.disconnect()
+      delete canvas.dataset.renderer
       cancelAnimationFrame(rafId)
       window.removeEventListener('pointermove', onPointerMove)
       document.documentElement.removeEventListener('mouseleave', onPointerLeave)
@@ -200,7 +217,7 @@ export default function OceanCanvas() {
       gl.deleteShader(vertexShader)
       gl.deleteShader(fragmentShader)
     }
-  }, [])
+  }, [enabled])
 
-  return <canvas ref={canvasRef} className="ambient-ocean-canvas" />
+  return <canvas ref={canvasRef} className="ambient-ocean-canvas" style={{ visibility: enabled ? undefined : 'hidden' }} />
 }

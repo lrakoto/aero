@@ -1,481 +1,77 @@
-import { motion, useScroll, useTransform, useSpring, useInView } from 'framer-motion'
-import { useEffect, useRef } from 'react'
-import { MILESTONES, ERA_DATA, CATEGORY_COLORS } from '../data/milestones'
+import { useRef, useState } from 'react'
+import { motion as Motion, useScroll, useSpring, useMotionValue, useInView } from 'framer-motion'
+import { MILESTONES, ERA_DATA, CATEGORY_COLORS, eraId } from '../data/milestones'
+import { AIRCRAFT_NOTES } from '../data/aircraft'
+import { AIRCRAFT_GEOMETRY } from '../data/aircraftGeometry'
 import EraAircraft from '../components/EraAircraft'
-import { useUIStore } from '../store/uiStore'
 
-// ─── Milestone card — auto-expands when centered in viewport ─────────────────
-
-function MilestoneCard({ milestone, accentColor }) {
+function MilestoneCard({ milestone }) {
   const ref = useRef(null)
-  // Active only while the card is in the center ~24% band of the viewport
-  const isActive = useInView(ref, { margin: '-38% 0px -38% 0px' })
-  const { color, bg } = CATEGORY_COLORS[milestone.category]
-
-  return (
-    <div
-      ref={ref}
-      style={{
-        position: 'relative',
-        paddingLeft: '136px',
-        paddingBottom: '36px',
-        minHeight: '64px',
-      }}
-    >
-      {/* Year — glows when active */}
-      <div style={{
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        width: '96px',
-        textAlign: 'right',
-        fontFamily: 'var(--font-display)',
-        fontSize: '28px',
-        fontWeight: 700,
-        letterSpacing: '-0.04em',
-        lineHeight: 1,
-        color: isActive ? accentColor : 'var(--text-muted)',
-        transition: 'color 0.4s ease, text-shadow 0.4s ease',
-        textShadow: isActive ? `0 0 24px ${accentColor}60` : 'none',
-      }}>
-        {milestone.year}
-      </div>
-
-      {/* Spine node */}
-      <div style={{
-        position: 'absolute',
-        left: '108px',
-        top: '9px',
-        width: '9px',
-        height: '9px',
-        borderRadius: '50%',
-        border: `1px solid ${isActive ? accentColor : 'var(--text-muted)'}`,
-        background: isActive ? accentColor : 'transparent',
-        boxShadow: isActive ? `0 0 0 3px ${accentColor}18, 0 0 12px ${accentColor}60` : 'none',
-        transform: 'translateX(-50%)',
-        transition: 'all 0.4s ease',
-        zIndex: 2,
-      }} />
-
-      {/* Card */}
-      <motion.div
-        animate={{ opacity: isActive ? 1 : 0.38 }}
-        transition={{ duration: 0.4 }}
-        style={{
-          border: `1px solid ${isActive ? color + '50' : 'var(--border)'}`,
-          borderRadius: '6px',
-          padding: '18px 22px',
-          background: isActive ? bg : 'transparent',
-          transition: 'border-color 0.4s, background 0.4s',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Active top glow line */}
-        <motion.div
-          animate={{ scaleX: isActive ? 1 : 0, opacity: isActive ? 1 : 0 }}
-          transition={{ duration: 0.4 }}
-          style={{
-            position: 'absolute', top: 0, left: 0, right: 0, height: '1px',
-            background: `linear-gradient(90deg, transparent, ${color}, transparent)`,
-            transformOrigin: 'left',
-          }}
-        />
-
-        {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
-          <h3 style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: '17px',
-            fontWeight: 600,
-            letterSpacing: '-0.02em',
-            color: 'var(--text-primary)',
-            lineHeight: 1.2,
-          }}>
-            {milestone.title}
-          </h3>
-          <span style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: '8px',
-            letterSpacing: '0.18em',
-            padding: '3px 9px',
-            borderRadius: '2px',
-            border: `1px solid ${color}55`,
-            color,
-            background: bg,
-            whiteSpace: 'nowrap',
-            flexShrink: 0,
-            marginLeft: '12px',
-          }}>
-            {milestone.category}
-          </span>
-        </div>
-
-        {/* Description — always visible */}
-        <p style={{
-          fontFamily: 'var(--font-body)',
-          fontSize: '13px',
-          color: 'var(--text-secondary)',
-          lineHeight: 1.75,
-        }}>
-          {milestone.description}
-        </p>
-
-        {/* Detail — auto-reveals when active, no click needed */}
-        <motion.div
-          animate={{ height: isActive ? 'auto' : 0, opacity: isActive ? 1 : 0 }}
-          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          style={{ overflow: 'hidden' }}
-        >
-          <div style={{
-            marginTop: '14px',
-            paddingTop: '14px',
-            borderTop: `1px solid ${color}22`,
-            display: 'flex',
-            gap: '10px',
-          }}>
-            <span style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '9px',
-              color,
-              marginTop: '2px',
-              flexShrink: 0,
-            }}>
-              //
-            </span>
-            <p style={{
-              fontFamily: 'var(--font-body)',
-              fontSize: '12px',
-              color: 'var(--text-muted)',
-              lineHeight: 1.7,
-            }}>
-              {milestone.detail}
-            </p>
-          </div>
-        </motion.div>
-      </motion.div>
+  const [expanded, setExpanded] = useState(null)
+  const active = useInView(ref, { margin: '-38% 0px -38% 0px' })
+  const open = expanded ?? active
+  const id = `record-${milestone.year}`
+  const category = CATEGORY_COLORS[milestone.category]
+  return <article id={id} ref={ref} className={`record-card record-card--original${active ? ' is-current' : ''}`} style={{ '--record-color': category.color, '--record-bg': category.bg }}>
+    <span className="record-card__year">{milestone.year}</span>
+    <div className="record-card__surface">
+      <div className="record-card__original-header"><h3>{milestone.title}</h3><span className="record-card__category">{milestone.category}</span></div>
+      <p>{milestone.description}</p>
+      <button className="record-disclosure" onClick={() => setExpanded(!open)} aria-expanded={open} aria-controls={`${id}-detail`}><span aria-hidden="true">//</span> Field note <span aria-hidden="true">{open ? '−' : '+'}</span></button>
+      <div id={`${id}-detail`} className="record-card__detail" hidden={!open}><p>{milestone.detail}</p><a href={milestone.source} target="_blank" rel="noreferrer">Historical reference <span aria-hidden="true">↗</span></a></div>
     </div>
-  )
+  </article>
 }
 
-// ─── Spine + cards container with scroll-fill line ───────────────────────────
-
-function SpineSection({ milestones, accentColor }) {
+function AircraftStudy({ era, reduced }) {
   const ref = useRef(null)
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ['start center', 'end center'],
-  })
-  const scaleY = useSpring(scrollYProgress, { stiffness: 90, damping: 28 })
-
-  return (
-    <div ref={ref} style={{ padding: '40px 0 56px' }}>
-      <div style={{ maxWidth: '840px', margin: '0 auto', position: 'relative', paddingRight: '24px' }}>
-
-        {/* Spine background (full height, faint) */}
-        <div style={{
-          position: 'absolute',
-          left: '112px',
-          top: 0,
-          bottom: 0,
-          width: '1px',
-          background: 'var(--border)',
-        }} />
-
-        {/* Spine fill (scroll-driven) */}
-        <motion.div
-          style={{
-            position: 'absolute',
-            left: '112px',
-            top: 0,
-            width: '1px',
-            height: '100%',
-            background: `linear-gradient(180deg, ${accentColor} 0%, ${accentColor}60 100%)`,
-            transformOrigin: 'top',
-            scaleY,
-          }}
-        />
-
-        {/* Cards */}
-        {milestones.map((m) => (
-          <MilestoneCard
-            key={m.year + m.title}
-            milestone={m}
-            accentColor={accentColor}
-          />
-        ))}
-      </div>
-    </div>
-  )
+  const [selected, setSelected] = useState(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start 95%', 'start 42%'] })
+  const progress = useSpring(scrollYProgress, { stiffness: 70, damping: 24 })
+  const complete = useMotionValue(1)
+  const aircraft = AIRCRAFT_NOTES[era]
+  const geometry = AIRCRAFT_GEOMETRY[era]
+  const [, , width, height] = geometry.viewBox.split(' ').map(Number)
+  const id = `${eraId(era)}-inspection`
+  const note = selected === null ? null : aircraft.notes[selected]
+  return <div className="aircraft-study" ref={ref}>
+    <div className="aircraft-study__header"><span>TECHNICAL STUDY / {geometry.model}</span><span aria-hidden="true">+</span></div>
+    <div className="aircraft-study__drawing"><div className="aircraft-study__plate" style={{ '--aircraft-ratio': width / height }}><EraAircraft era={era} drawProgress={reduced || selected !== null ? complete : progress} color="var(--chapter-accent)" selectedPart={note?.part}/>
+      {aircraft.notes.map((item, index) => <button key={item.part} className={`inspection-point${selected === index ? ' is-selected' : ''}`} style={{ left: `${geometry.points[index][0] / width * 100}%`, top: `${geometry.points[index][1] / height * 100}%` }} aria-label={`Inspect ${item.label}`} aria-pressed={selected === index} aria-controls={id} onClick={() => setSelected(selected === index ? null : index)}>0{index + 1}</button>)}
+    </div></div>
+    <div className="inspection-controls" role="group" aria-label={`Inspect the ${aircraft.model}`}>{aircraft.notes.map((item, index) => <button key={item.part} onClick={() => setSelected(selected === index ? null : index)} aria-pressed={selected === index} aria-controls={id}><span>0{index + 1}</span>{item.label}<span aria-hidden="true">{selected === index ? '−' : '+'}</span></button>)}</div>
+    <div id={id} className="inspection-note" aria-live="polite">{note ? <><strong>{note.label}</strong><p>{note.text}</p><a href={aircraft.source} target="_blank" rel="noreferrer">Explore the source ↗</a></> : <><span className="technical-label">ENGINEERING, UP CLOSE</span><p>Select a numbered point or a component below the drawing to explore what made this aircraft different.</p></>}</div>
+    <div className="aircraft-study__footer"><span>TOP VIEW</span><span>{geometry.span}</span></div>
+    <a className="aircraft-reference" href={geometry.reference} target="_blank" rel="noreferrer">Drawing reference · {geometry.credit} ↗</a>
+  </div>
 }
 
-// ─── Era chapter panel ────────────────────────────────────────────────────────
-
-function EraChapter({ era, eraData, milestones, eraIndex }) {
-  const panelRef     = useRef(null)
-  const setActiveEra = useUIStore((s) => s.setActiveEra)
-
-  // Trigger for text stagger — fires once when section enters
-  const textInView = useInView(panelRef, { once: true, margin: '-8%' })
-
-  // Update HUD era label when this panel is in view
-  const eraInView = useInView(panelRef, { margin: '-30% 0px -30% 0px' })
-  const eraId = `era-${era.toLowerCase().replace(/\s+/g, '-')}`
-
-  useEffect(() => {
-    if (eraInView) setActiveEra(eraId)
-  }, [eraId, eraInView, setActiveEra])
-
-  // Raw scroll progress for aircraft path drawing (0 = not yet, 1 = complete)
-  const { scrollYProgress: rawDraw } = useScroll({
-    target: panelRef,
-    offset: ['start 88%', 'center 55%'],
-  })
-  // Spring-smoothed so drawing follows scroll with slight inertia
-  const drawProgress = useSpring(rawDraw, { stiffness: 50, damping: 18 })
-
-  // Parallax through the full panel
-  const { scrollYProgress: through } = useScroll({
-    target: panelRef,
-    offset: ['start end', 'end start'],
-  })
-  const bgY       = useTransform(through, [0, 1], ['-5%', '5%'])
-  const aircraftY = useTransform(through, [0, 1], [-28, 28])
-
-  // Aircraft position/opacity driven by entry scroll
-  const { scrollYProgress: enter } = useScroll({
-    target: panelRef,
-    offset: ['start 90%', 'start 18%'],
-  })
-  const isEven        = eraIndex % 2 === 0
-  const aircraftSlide = useTransform(enter, [0, 0.65], [isEven ? 68 : -68, 0])
-  const aircraftOp    = useTransform(enter, [0, 0.32], [0, 1])
-  const aircraftScale = useTransform(enter, [0, 0.60], [0.93, 1])
-
-  const eraAccents = ['var(--accent)', 'var(--accent-warm)', 'var(--accent)', 'var(--accent-danger)', 'var(--accent-green)']
-  const eraAccent  = eraAccents[eraIndex] || 'var(--accent)'
-
-  // Text stagger variants — useInView triggered (reliable)
-  const stagger = {
-    hidden: {},
-    visible: { transition: { staggerChildren: 0.09, delayChildren: 0.04 } },
-  }
-  const item = {
-    hidden:  { opacity: 0, y: 18 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] } },
-  }
-
-  return (
-    <div id={`era-${era.toLowerCase().replace(/\s+/g, '-')}`}>
-
-      {/* Full-bleed chapter panel */}
-      <div ref={panelRef} style={{ position: 'relative', overflow: 'hidden', borderTop: '1px solid var(--border)' }}>
-
-        {/* Parallax grid */}
-        <motion.div style={{
-          position: 'absolute', inset: '-10%', zIndex: 0,
-          backgroundImage: `
-            linear-gradient(rgba(99,179,237,0.016) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(99,179,237,0.016) 1px, transparent 1px)
-          `,
-          backgroundSize: '80px 80px',
-          y: bgY,
-        }} />
-
-        {/* Constrained grid */}
-        <div style={{
-          position: 'relative', zIndex: 1,
-          maxWidth: '1280px', margin: '0 auto',
-          display: 'grid', gridTemplateColumns: '1fr 1fr',
-          minHeight: '88vh',
-        }}>
-
-          {/* ── Text side ── */}
-          {isEven ? (
-            <motion.div
-              variants={stagger} initial="hidden" animate={textInView ? 'visible' : 'hidden'}
-              style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '72px 56px' }}
-            >
-              <motion.div variants={item} style={{
-                fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.3em',
-                color: eraAccent, marginBottom: '20px',
-                display: 'flex', alignItems: 'center', gap: '12px',
-              }}>
-                <span style={{ width: '26px', height: '1px', background: eraAccent }} />
-                {String(eraIndex + 1).padStart(2, '0')} // {era.toUpperCase()}
-              </motion.div>
-              <motion.div variants={item} style={{
-                fontFamily: 'var(--font-display)', fontWeight: 700,
-                fontSize: 'clamp(44px, 4.5vw, 68px)', letterSpacing: '-0.04em', lineHeight: 0.92,
-                color: eraAccent, marginBottom: '14px',
-              }}>
-                {eraData.dateRange}
-              </motion.div>
-              <motion.div variants={item} style={{
-                fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.25em',
-                color: 'var(--text-muted)', marginBottom: '22px',
-              }}>
-                {eraData.aircraft}
-              </motion.div>
-              <motion.h2 variants={item} style={{
-                fontFamily: 'var(--font-display)', fontWeight: 600,
-                fontSize: 'clamp(20px, 2.2vw, 30px)', letterSpacing: '-0.025em', lineHeight: 1.18,
-                color: 'var(--text-primary)', marginBottom: '18px',
-              }}>
-                {eraData.tagline}
-              </motion.h2>
-              <motion.p variants={item} style={{
-                fontFamily: 'var(--font-body)', fontSize: '14px',
-                color: 'var(--text-secondary)', lineHeight: 1.75, maxWidth: '400px', marginBottom: '28px',
-              }}>
-                {eraData.description}
-              </motion.p>
-              <motion.span variants={item} style={{
-                alignSelf: 'flex-start', display: 'inline-block',
-                fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.18em',
-                padding: '5px 12px', borderRadius: '2px',
-                border: `1px solid ${eraAccent}45`, color: eraAccent, background: `${eraAccent}0d`,
-              }}>
-                {milestones.length} RECORDS
-              </motion.span>
-            </motion.div>
-          ) : (
-            /* Aircraft left */
-            <div style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              padding: '72px 48px', position: 'relative', overflow: 'hidden',
-            }}>
-              <div style={{
-                position: 'absolute', inset: 0,
-                background: `radial-gradient(ellipse 65% 65% at 50% 50%, ${eraAccent}08 0%, transparent 70%)`,
-              }} />
-              <motion.div style={{
-                width: '100%', maxWidth: '340px', aspectRatio: '1',
-                x: aircraftSlide, y: aircraftY, opacity: aircraftOp, scale: aircraftScale,
-              }}>
-                <EraAircraft era={era} drawProgress={drawProgress} color={eraAccent} />
-              </motion.div>
-            </div>
-          )}
-
-          {/* ── Other side ── */}
-          {isEven ? (
-            /* Aircraft right */
-            <div style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              padding: '72px 48px', position: 'relative', overflow: 'hidden',
-            }}>
-              <div style={{
-                position: 'absolute', inset: 0,
-                background: `radial-gradient(ellipse 65% 65% at 50% 50%, ${eraAccent}08 0%, transparent 70%)`,
-              }} />
-              <motion.div style={{
-                width: '100%', maxWidth: '340px', aspectRatio: '1',
-                x: aircraftSlide, y: aircraftY, opacity: aircraftOp, scale: aircraftScale,
-              }}>
-                <EraAircraft era={era} drawProgress={drawProgress} color={eraAccent} />
-              </motion.div>
-            </div>
-          ) : (
-            /* Text right */
-            <motion.div
-              variants={stagger} initial="hidden" animate={textInView ? 'visible' : 'hidden'}
-              style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '72px 56px' }}
-            >
-              <motion.div variants={item} style={{
-                fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.3em',
-                color: eraAccent, marginBottom: '20px',
-                display: 'flex', alignItems: 'center', gap: '12px',
-              }}>
-                <span style={{ width: '26px', height: '1px', background: eraAccent }} />
-                {String(eraIndex + 1).padStart(2, '0')} // {era.toUpperCase()}
-              </motion.div>
-              <motion.div variants={item} style={{
-                fontFamily: 'var(--font-display)', fontWeight: 700,
-                fontSize: 'clamp(44px, 4.5vw, 68px)', letterSpacing: '-0.04em', lineHeight: 0.92,
-                color: eraAccent, marginBottom: '14px',
-              }}>
-                {eraData.dateRange}
-              </motion.div>
-              <motion.div variants={item} style={{
-                fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.25em',
-                color: 'var(--text-muted)', marginBottom: '22px',
-              }}>
-                {eraData.aircraft}
-              </motion.div>
-              <motion.h2 variants={item} style={{
-                fontFamily: 'var(--font-display)', fontWeight: 600,
-                fontSize: 'clamp(20px, 2.2vw, 30px)', letterSpacing: '-0.025em', lineHeight: 1.18,
-                color: 'var(--text-primary)', marginBottom: '18px',
-              }}>
-                {eraData.tagline}
-              </motion.h2>
-              <motion.p variants={item} style={{
-                fontFamily: 'var(--font-body)', fontSize: '14px',
-                color: 'var(--text-secondary)', lineHeight: 1.75, maxWidth: '400px', marginBottom: '28px',
-              }}>
-                {eraData.description}
-              </motion.p>
-              <motion.span variants={item} style={{
-                alignSelf: 'flex-start', display: 'inline-block',
-                fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.18em',
-                padding: '5px 12px', borderRadius: '2px',
-                border: `1px solid ${eraAccent}45`, color: eraAccent, background: `${eraAccent}0d`,
-              }}>
-                {milestones.length} RECORDS
-              </motion.span>
-            </motion.div>
-          )}
-        </div>
-      </div>
-
-      {/* Milestone cards */}
-      <div className="milestone-glass-section">
-        <SpineSection milestones={milestones} accentColor={eraAccent} />
+function EraChapter({ era, index, reduced }) {
+  const data = ERA_DATA[era]
+  const records = MILESTONES.filter(item => item.era === era)
+  const accents = ['var(--accent)', '#eac395', 'var(--accent)', '#c6b4e7', '#a1d1be']
+  const next = Object.keys(ERA_DATA)[index + 1]
+  return <section id={eraId(era)} data-chapter className={`era-chapter era-chapter--open${index % 2 ? ' era-chapter--reverse' : ''}`} aria-labelledby={`${eraId(era)}-title`} style={{ '--chapter-accent': accents[index] }}>
+    <div className="chapter-opening">
+      <Motion.header className="chapter-opening__copy" initial={reduced ? false : { opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: .2 }} transition={{ duration: .7 }}>
+        <div className="chapter-opening__index">0{index + 1} // {era.toUpperCase()}</div>
+        <div className="chapter-opening__dates">{data.dateRange}</div>
+        <span className="technical-label">{data.aircraft}</span>
+        <h2 id={`${eraId(era)}-title`}>{data.tagline}</h2>
+        <p>{data.description}</p>
+        <a className="chapter-record-count" href={`#${eraId(era)}-records`}>{records.length} HISTORICAL RECORDS <span aria-hidden="true">↓</span></a>
+      </Motion.header>
+      <AircraftStudy era={era} reduced={reduced}/>
+    </div>
+    <div className="chapter-timeline-surface">
+      <div id={`${eraId(era)}-records`} className="chapter-records chapter-records--spine">
+        {records.map(record => <MilestoneCard key={record.year} milestone={record}/>)}
       </div>
     </div>
-  )
+    <div className="chapter-end"><span>END OF CHAPTER 0{index + 1}</span><a href={next ? `#${eraId(next)}` : '#intro'}>{next ? `Continue to ${next}` : 'Return to the beginning'} <span aria-hidden="true">{next ? '↓' : '↑'}</span></a></div>
+  </section>
 }
 
-// ─── Root ─────────────────────────────────────────────────────────────────────
-
-export default function Timeline() {
-  const eraOrder = Object.keys(ERA_DATA)
-  const byEra = eraOrder.reduce((acc, era) => {
-    const items = MILESTONES.filter((m) => m.era === era)
-    if (items.length > 0) acc[era] = items
-    return acc
-  }, {})
-
-  return (
-    <section id="timeline" style={{ position: 'relative' }}>
-      {/* Era chapters */}
-      {Object.entries(byEra).map(([era, items]) => (
-        <EraChapter
-          key={era}
-          era={era}
-          eraData={ERA_DATA[era]}
-          milestones={items}
-          eraIndex={ERA_DATA[era].index}
-        />
-      ))}
-
-      {/* Footer */}
-      <motion.div
-        initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-        style={{
-          maxWidth: '1280px', margin: '0 auto',
-          padding: '56px 56px',
-          display: 'flex', alignItems: 'center', gap: '18px',
-        }}
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-          <polygon points="12,2 22,20 2,20" fill="none" stroke="var(--accent)" strokeWidth="1.2" opacity="0.35" />
-        </svg>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.25em', color: 'var(--text-muted)' }}>
-          AERO // HISTORICAL RECORD // FOR EDUCATIONAL USE
-        </span>
-      </motion.div>
-    </section>
-  )
+export default function Timeline({ reduced }) {
+  return <div id="timeline" className="historical-record historical-record--open">{Object.keys(ERA_DATA).map((era, index) => <EraChapter key={era} era={era} index={index} reduced={reduced}/>)}<footer className="aero-footer"><a href="#intro">△ AERO</a><p>An independent record of aircraft and the ideas behind them.<br/>For educational use. Not affiliated with Lockheed Martin.</p><a href="#intro">BACK TO TOP ↑</a></footer></div>
 }

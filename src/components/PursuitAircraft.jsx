@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value))
-const TRAIL_POINTS = 68
+const TRAIL_POINTS = 36
 
 function shortestAngle(from, to) {
   let delta = to - from
@@ -10,7 +10,8 @@ function shortestAngle(from, to) {
   return delta
 }
 
-export default function PursuitAircraft() {
+export default function PursuitAircraft({ enabled = true }) {
+  const flightRef = useRef(null)
   const aircraftRef = useRef(null)
   const modelRef = useRef(null)
   const trailGlowRefs = useRef([])
@@ -19,8 +20,9 @@ export default function PursuitAircraft() {
   useEffect(() => {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
     const finePointer = window.matchMedia('(pointer: fine)')
-    if (reducedMotion.matches || !finePointer.matches) return undefined
+    if (!enabled || reducedMotion.matches || !finePointer.matches) return undefined
 
+    const flight = flightRef.current
     const aircraft = aircraftRef.current
     const model = modelRef.current
     if (!aircraft || !model) return undefined
@@ -33,12 +35,18 @@ export default function PursuitAircraft() {
     let previousTime = performance.now()
     let previousTrailTime = 0
     let holdingPhase = Math.PI * 0.25
-    let frameId
+    let lastPointerTime = performance.now()
+    let frameId = null
     let active = true
 
     const onPointerMove = ({ clientX, clientY }) => {
       target.x = clientX
       target.y = clientY
+      lastPointerTime = performance.now()
+      if (frameId === null && !document.hidden) {
+        previousTime = lastPointerTime
+        frameId = requestAnimationFrame(render)
+      }
     }
 
     const onResize = () => {
@@ -47,7 +55,11 @@ export default function PursuitAircraft() {
     }
 
     const render = (now) => {
-      if (!active) return
+      frameId = null
+      if (!active || document.hidden) return
+      const idle = now - lastPointerTime
+      flight.style.opacity = `${clamp(1 - (idle - 1800) / 1200, 0, 1)}`
+      if (idle >= 3000) { trail.length = 0; return }
 
       const dt = Math.min((now - previousTime) / 1000, 0.034)
       previousTime = now
@@ -65,7 +77,7 @@ export default function PursuitAircraft() {
       const desiredX = interceptX - position.x
       const desiredY = interceptY - position.y
       const desiredLength = Math.max(Math.hypot(desiredX, desiredY), 0.001)
-      const desiredSpeed = clamp(distance * 0.68, 104, 198)
+      const desiredSpeed = clamp(distance * 0.55, 65, 150)
       const desiredVelocityX = desiredX / desiredLength * desiredSpeed
       const desiredVelocityY = desiredY / desiredLength * desiredSpeed
       const steering = 1 - Math.exp(-2.15 * dt)
@@ -125,20 +137,28 @@ export default function PursuitAircraft() {
       frameId = requestAnimationFrame(render)
     }
 
+    const onVisibilityChange = () => {
+      cancelAnimationFrame(frameId)
+      frameId = null
+      flight.style.opacity = '0'
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
     window.addEventListener('pointermove', onPointerMove, { passive: true })
     window.addEventListener('resize', onResize)
     frameId = requestAnimationFrame(render)
 
     return () => {
       active = false
+      flight.style.opacity = '0'
+      document.removeEventListener('visibilitychange', onVisibilityChange)
       cancelAnimationFrame(frameId)
       window.removeEventListener('pointermove', onPointerMove)
       window.removeEventListener('resize', onResize)
     }
-  }, [])
+  }, [enabled])
 
   return (
-    <div className="pursuit-flight" aria-hidden="true">
+    <div ref={flightRef} className="pursuit-flight" style={{ visibility: enabled ? undefined : 'hidden' }} aria-hidden="true">
       <svg className="pursuit-trail" width="100%" height="100%">
         <g className="pursuit-trail__glow">
           {Array.from({ length: TRAIL_POINTS - 1 }, (_, index) => (

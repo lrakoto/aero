@@ -6,3 +6,9 @@ aero-deploy-*.zip
 
 # Local Claude project context — keep off remote
 .claude/
+
+# Nested standalone project — has its own git repo
+Aero2/
+
+# Hosting project id — keep off public remote
+.openai/

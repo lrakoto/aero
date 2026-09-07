@@ -1,11 +1,11 @@
-import { motion, useInView } from 'framer-motion'
+import { motion as Motion, useInView } from 'framer-motion'
 import { useRef, useState } from 'react'
 
 function ControlSpec({ label, value, detail, index }) {
   const [hovered, setHovered] = useState(false)
 
   return (
-    <motion.div
+    <Motion.div
       initial={{ opacity: 0, x: -16 }}
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true }}
@@ -24,7 +24,7 @@ function ControlSpec({ label, value, detail, index }) {
       }}
     >
       {hovered && (
-        <motion.div
+        <Motion.div
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           style={{
@@ -43,7 +43,7 @@ function ControlSpec({ label, value, detail, index }) {
           {value}
         </span>
       </div>
-      <motion.p
+      <Motion.p
         initial={{ opacity: 0, height: 0 }}
         animate={{ opacity: hovered ? 1 : 0, height: hovered ? 'auto' : 0 }}
         transition={{ duration: 0.2 }}
@@ -57,8 +57,8 @@ function ControlSpec({ label, value, detail, index }) {
         }}
       >
         {detail}
-      </motion.p>
-    </motion.div>
+      </Motion.p>
+    </Motion.div>
   )
 }
 
@@ -88,7 +88,7 @@ export default function Precision() {
       <div style={{ position: 'relative', zIndex: 1, maxWidth: '1100px', margin: '0 auto', width: '100%' }}>
 
         {/* Section header */}
-        <motion.div
+        <Motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7 }}
@@ -127,7 +127,7 @@ export default function Precision() {
             compensate for physics, and deliver control authority that no mechanical
             linkage could provide.
           </p>
-        </motion.div>
+        </Motion.div>
 
         {/* Hover to reveal specs grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
@@ -137,7 +137,7 @@ export default function Precision() {
         </div>
 
         {/* Footer note */}
-        <motion.div
+        <Motion.div
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : {}}
           transition={{ delay: 0.8 }}
@@ -151,7 +151,7 @@ export default function Precision() {
           }}
         >
           // HOVER EACH CARD TO EXPAND SPECIFICATION DETAIL
-        </motion.div>
+        </Motion.div>
       </div>
     </section>
   )
