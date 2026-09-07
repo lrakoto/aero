@@ -1,9 +1,8 @@
 name: Deploy to threeohfivestudios.com/aero
 
 on:
-  # Auto-deploy on main is paused until FTP_SERVER_DIR is confirmed.
-  # push:
-  #   branches: [main]
+  push:
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
@@ -36,4 +35,4 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftps
           local-dir: ./dist/
-          server-dir: ${{ vars.FTP_SERVER_DIR || '/public_html/aero/' }}
+          server-dir: ${{ vars.FTP_SERVER_DIR }}
