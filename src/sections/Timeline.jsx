@@ -9,7 +9,9 @@ function MilestoneCard({ milestone }) {
   const ref = useRef(null)
   const [expanded, setExpanded] = useState(null)
   const active = useInView(ref, { margin: '-38% 0px -38% 0px' })
-  const open = expanded ?? active
+  // Auto-reveal once and stay open: collapsing cards as they leave the band shifts the page mid-scroll.
+  const reached = useInView(ref, { margin: '-38% 0px -38% 0px', once: true })
+  const open = expanded ?? reached
   const id = `record-${milestone.year}`
   const category = CATEGORY_COLORS[milestone.category]
   return <article id={id} ref={ref} className={`record-card record-card--original${active ? ' is-current' : ''}`} style={{ '--record-color': category.color, '--record-bg': category.bg }}>
@@ -18,7 +20,7 @@ function MilestoneCard({ milestone }) {
       <div className="record-card__original-header"><h3>{milestone.title}</h3><span className="record-card__category">{milestone.category}</span></div>
       <p>{milestone.description}</p>
       <button className="record-disclosure" onClick={() => setExpanded(!open)} aria-expanded={open} aria-controls={`${id}-detail`}><span aria-hidden="true">//</span> Field note <span aria-hidden="true">{open ? '−' : '+'}</span></button>
-      <div id={`${id}-detail`} className="record-card__detail" hidden={!open}><p>{milestone.detail}</p><a href={milestone.source} target="_blank" rel="noreferrer">Historical reference <span aria-hidden="true">↗</span></a></div>
+      <div id={`${id}-detail`} className={`record-card__reveal${open ? ' is-open' : ''}`} inert={!open}><div className="record-card__reveal-inner"><div className="record-card__detail"><p>{milestone.detail}</p><a href={milestone.source} target="_blank" rel="noreferrer">Historical reference <span aria-hidden="true">↗</span></a></div></div></div>
     </div>
   </article>
 }

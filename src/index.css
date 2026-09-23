@@ -1066,3 +1066,4 @@ html[data-motion=reduced]{scroll-behavior:auto}html[data-motion=reduced] *,html[
 .record-card--original .record-card__detail p{font-size:12px;line-height:1.75;color:var(--text-secondary)}
 .record-card--original .record-card__detail a{font-size:10px;color:var(--record-color)}
 @media(max-width:760px){.record-card--original .record-card__surface{padding:18px}.record-card--original .record-card__year{display:block;margin-bottom:14px}.record-card__original-header{flex-direction:column;gap:9px}.record-card__surface>p{font-size:14px}.record-card--original .record-card__detail p{font-size:13px}.record-card--original .record-disclosure{min-height:44px}.record-card--original .record-card__surface{opacity:.7}}
+.record-card__reveal{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .45s cubic-bezier(.22,1,.36,1),opacity .35s ease}.record-card__reveal.is-open{grid-template-rows:1fr;opacity:1}.record-card__reveal-inner{min-height:0;overflow:hidden}
