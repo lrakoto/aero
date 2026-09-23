@@ -1,4 +1,4 @@
-import { motion as Motion, useTransform } from 'framer-motion'
+import { m as Motion, useTransform } from 'framer-motion'
 import { AIRCRAFT_GEOMETRY } from '../data/aircraftGeometry'
 
 export default function EraAircraft({ era, drawProgress, color = 'var(--accent)', selectedPart }) {

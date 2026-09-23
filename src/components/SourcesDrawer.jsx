@@ -41,7 +41,7 @@ export default function SourcesDrawer() {
   const setOpen = useUIStore(state => state.setSourcesVisible)
   return <DisplayDialog id="sources-dialog" open={open} onClose={() => setOpen(false)} eyebrow="AERO / REFERENCE ARCHIVE" title="Grounded in history">
     <p className="dialog-intro">Institutional references behind this selective historical record. Each milestone also links to a relevant source.</p>
-    <ol className="reference-list">{SOURCES.map((source, index) => <li key={source.href}><span>0{index + 1}</span><a href={source.href} target="_blank" rel="noreferrer">{source.label.replace(' // ', ' · ')} <span aria-hidden="true">↗</span></a></li>)}</ol>
+    <ol className="reference-list">{SOURCES.map((source, index) => <li key={source.href}><span>{String(index + 1).padStart(2, '0')}</span><a href={source.href} target="_blank" rel="noreferrer">{source.label.replace(' // ', ' · ')} <span aria-hidden="true">↗</span></a></li>)}</ol>
     <p className="reference-note">Independent educational visualization. Aircraft schematics are illustrative, not engineering drawings. Lockheed Martin names and marks belong to their respective owner.</p>
   </DisplayDialog>
 }

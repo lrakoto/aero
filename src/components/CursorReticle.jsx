@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { motion as Motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion'
+import { m as Motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion'
 import { useUIStore } from '../store/uiStore'
 
 export default function CursorReticle() {

@@ -1,7 +1,8 @@
-import { useEffect } from 'react'
-import { motion as Motion, useMotionValue, useScroll, useSpring, useTransform } from 'framer-motion'
-import OceanCanvas from './OceanCanvas'
+import { Suspense, lazy, useEffect } from 'react'
+import { m as Motion, useMotionValue, useScroll, useSpring, useTransform } from 'framer-motion'
 import { useUIStore } from '../store/uiStore'
+
+const OceanCanvas = lazy(() => import('./OceanCanvas'))
 
 const ERA_INDEX = {
   'era-origins': 0,
@@ -60,7 +61,7 @@ export default function AmbientBackground({ enabled = true }) {
       <Motion.div className="ambient-ocean-parallax" style={{ x: enabled ? oceanX : 0, y: enabled ? oceanY : 0 }}>
         <Motion.div className="ambient-ocean-scroll" style={{ y: enabled ? oceanScrollY : 0 }}>
           <div className="ambient-ocean-texture">
-            <OceanCanvas eraIndex={eraIndex} enabled={enabled} />
+            <Suspense fallback={null}><OceanCanvas eraIndex={eraIndex} enabled={enabled} /></Suspense>
           </div>
         </Motion.div>
       </Motion.div>

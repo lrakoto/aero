@@ -1,4 +1,4 @@
-import { motion as Motion } from 'framer-motion'
+import { m as Motion } from 'framer-motion'
 import { MILESTONES, ERAS } from '../data/milestones'
 
 export default function Intro({ reduced = false }) {

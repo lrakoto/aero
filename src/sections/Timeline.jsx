@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { motion as Motion, useScroll, useSpring, useMotionValue, useInView } from 'framer-motion'
+import { m as Motion, useScroll, useSpring, useMotionValue, useInView } from 'framer-motion'
 import { MILESTONES, ERA_DATA, CATEGORY_COLORS, eraId } from '../data/milestones'
 import { AIRCRAFT_NOTES } from '../data/aircraft'
 import { AIRCRAFT_GEOMETRY } from '../data/aircraftGeometry'

@@ -1,16 +1,18 @@
-import { useEffect } from 'react'
-import { MotionConfig, useReducedMotion } from 'framer-motion'
+import { Suspense, lazy, useEffect } from 'react'
+import { LazyMotion, MotionConfig, domAnimation, useReducedMotion } from 'framer-motion'
 import { useUIStore, THEMES } from './store/uiStore'
 import { useSmoothScroll } from './hooks/useSmoothScroll'
 import AmbientBackground from './components/AmbientBackground'
-import PursuitAircraft from './components/PursuitAircraft'
 import EraProgress from './components/EraProgress'
 import SourcesDrawer from './components/SourcesDrawer'
 import Nav from './components/Nav'
 import HUDOverlay from './components/HUDOverlay'
 import Intro from './sections/Intro'
 import Timeline from './sections/Timeline'
+import { pickActiveChapter, scrollPercent } from './utils/activeChapter'
 import './index.css'
+
+const PursuitAircraft = lazy(() => import('./components/PursuitAircraft'))
 
 export default function App() {
   const theme = useUIStore(state => state.activeTheme)
@@ -41,12 +43,12 @@ export default function App() {
     const update = () => {
       frame = undefined
       const threshold = window.innerHeight * .38
-      const current = sections.filter(section => section.getBoundingClientRect().top <= threshold).at(-1) || sections[0]
+      const current = pickActiveChapter(sections.map(section => ({ id: section.id, top: section.getBoundingClientRect().top })), threshold)
       const state = useUIStore.getState()
       state.setActiveSection(current.id)
       if (current.id !== 'intro') state.setActiveEra(current.id)
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight
-      state.setScrollProgress(maxScroll > 0 ? Math.min(100, Math.round(window.scrollY / maxScroll * 100)) : 0)
+      state.setScrollProgress(scrollPercent(window.scrollY, maxScroll))
     }
     const schedule = () => { if (frame === undefined) frame = requestAnimationFrame(update) }
     window.addEventListener('scroll', schedule, { passive: true })
@@ -57,16 +59,16 @@ export default function App() {
     return () => { cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule) }
   }, [])
 
-  return <MotionConfig reducedMotion={reduced ? 'always' : 'user'}>
+  return <LazyMotion features={domAnimation} strict><MotionConfig reducedMotion={reduced ? 'always' : 'user'}>
     <div className="app-shell">
       <a className="skip-link" href="#era-origins">Skip to the historical record</a>
       <AmbientBackground enabled={!reduced && !paused}/>
-      <PursuitAircraft enabled={!reduced && !paused && pursuitEnabled}/>
+      <Suspense fallback={null}><PursuitAircraft enabled={!reduced && !paused && pursuitEnabled}/></Suspense>
       <Nav/>
       <HUDOverlay reduced={reduced} systemReduced={Boolean(systemReduced)}/>
       <EraProgress/>
       <SourcesDrawer/>
       <main><Intro reduced={reduced}/><Timeline reduced={reduced}/></main>
     </div>
-  </MotionConfig>
+  </MotionConfig></LazyMotion>
 }

@@ -196,7 +196,9 @@ export default function OceanCanvas({ eraIndex = 0, enabled = true }) {
       resize()
       rafId = requestAnimationFrame(render)
     }
-    image.src = `${import.meta.env.BASE_URL}assets/images/dark-ocean-aerial-v3.jpg`
+    const imageBase = `${import.meta.env.BASE_URL}assets/images/dark-ocean-aerial-v3`
+    image.onerror = () => { image.onerror = null; image.src = `${imageBase}.jpg` }
+    image.src = `${imageBase}.webp`
 
     const observer = new ResizeObserver(resize)
     observer.observe(canvas)
